@@ -16,6 +16,7 @@ export class PipelineStack extends cdk.Stack {
         }),
         commands: ['npm ci', 'npm run build', 'npx cdk synth'],
       }),
+      dockerEnabledForSynth: true,
     });
     
     const stage = new AppStage(this, 'AppStage');
