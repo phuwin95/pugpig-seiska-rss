@@ -9,12 +9,28 @@ export default class AppStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const myFunction = new NodejsFunction(this, 'my-function', {
+    const all = new NodejsFunction(this, 'pugpig-rss-all', {
       memorySize: 256,
       timeout: Duration.seconds(5),
       runtime: Runtime.NODEJS_18_X,
       handler: 'main',
-      entry: join(__dirname, `/../src/index.ts`),
+      entry: join(__dirname, `/../src/all.ts`),
+    });
+
+    const frontpage = new NodejsFunction(this, 'pugpig-rss-frontpage', {
+      memorySize: 256,
+      timeout: Duration.seconds(5),
+      runtime: Runtime.NODEJS_18_X,
+      handler: 'main',
+      entry: join(__dirname, `/../src/frontpage.ts`),
+    });
+
+    const popular = new NodejsFunction(this, 'pugpig-rss-popular', {
+      memorySize: 256,
+      timeout: Duration.seconds(5),
+      runtime: Runtime.NODEJS_18_X,
+      handler: 'main',
+      entry: join(__dirname, `/../src/popular.ts`),
     });
 
     // create an api gateway for the lambda
@@ -23,15 +39,29 @@ export default class AppStack extends Stack {
       description: "This service serves Pugpig app for seiska rss."
     });
 
-    const getWidgetsIntegration = new apigateway.LambdaIntegration(myFunction, {
+    const getAllIntegration = new apigateway.LambdaIntegration(all, {
       requestTemplates: { "application/json": '{ "statusCode": "200" }' }
     });
 
-    api.root.addMethod("GET", getWidgetsIntegration); // GET /
+    const getFrontpageIntegration = new apigateway.LambdaIntegration(frontpage, {
+      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
+    });
+
+    const getPopularIntegration = new apigateway.LambdaIntegration(popular, {
+      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
+    });
+
+
+
+    api.root.addResource("all").addMethod("GET", getAllIntegration); // GET /all
+    api.root.addResource("frontpage").addMethod("GET", getFrontpageIntegration); // GET /frontpage
+    api.root.addResource("popular").addMethod("GET", getPopularIntegration); // GET /popular
+
 
     // output the endpoint url
     new CfnOutput(this, "Pugpig Rss", {
       value: api.url ?? "Something went wrong with the deploy"
     });
+
   }
 }
