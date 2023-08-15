@@ -17,6 +17,10 @@ export async function main(
     ttl: 60, // in minutes,
     feed_url: 'https://www.seiska.fi/rss',
     site_url: 'https://www.seiska.fi',
+    custom_namespaces: {
+      'content': 'http://purl.org/rss/1.0/modules/content/',
+      'rss': 'http://purl.org/rss/1.0/',
+    }
   });
 
   data.result.forEach((item: any) => {
@@ -47,7 +51,7 @@ export async function main(
   return {
     body: feed.xml({indent: true}),
     headers: {
-      'Content-Type': 'application/xml',
+      'Content-Type': 'application/rss+xml',
     },
     statusCode: 200,
   };
