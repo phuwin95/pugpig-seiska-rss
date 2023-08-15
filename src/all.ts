@@ -28,6 +28,7 @@ const getImage = (article: Article) => {
   const baseUrl = "https://image.seiska.fi";
   const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
   const baseImage = `${baseUrl}/${id}.jpeg?width=710&height=400`;
+  return baseImage;
 };
 
 export async function main(
@@ -45,7 +46,7 @@ export async function main(
     site_url: 'https://www.seiska.fi',
   });
 
-  const items = data.results.forEach((item: any) => {
+  data.result.forEach((item: any) => {
     const article : Article = item?.article;
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
@@ -53,7 +54,7 @@ export async function main(
     const content = article?.field?.bodytext;
     const pubDate = formatDate(+article?.field?.published * 1000);
     const category = article?.primarytag?.section;
-    const image = getImage(article)
+    const image = getImage(article);
     const feedItem = {
       title, description, url: '', date: '',
       custom_elements: [
