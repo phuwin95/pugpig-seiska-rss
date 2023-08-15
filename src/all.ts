@@ -24,7 +24,7 @@ const formatDate = (date: string | number) => {
   return `${weekday}, ${formattedDay} ${month} ${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${timezone}`;
 }
 
-const getImage = (article : Article) => {
+const getImage = (article: Article) => {
   const baseUrl = "https://image.seiska.fi";
   const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
   const baseImage = `${baseUrl}/${id}.jpeg?width=710&height=400`;
@@ -46,7 +46,7 @@ export async function main(
   });
 
   const items = data.results.forEach((item: any) => {
-    const article : Article = item.article;
+    const article : Article = item?.article;
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
     const description = article?.field?.subtitle;

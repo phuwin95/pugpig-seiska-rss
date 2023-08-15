@@ -1,0 +1,281 @@
+export interface Article {
+  "@attributes": ArticleAttributes;
+  attribute:     Attribute;
+  mainterm:      Mainterm;
+  term:          Mainterm;
+  field:         ArticleFieldClass;
+  primarytag:    Primarytag;
+  tag:           Tag;
+  children:      ArticleChildren;
+}
+
+export interface ArticleAttributes {
+  id:    string;
+  type:  Type;
+  dirty: string;
+}
+
+export enum Type {
+  Node = "node",
+  Property = "property",
+}
+
+export interface Attribute {
+  "@attributes":  AttributeAttributes;
+  id:             string;
+  status:         Status;
+  user_id:        string;
+  parent_id?:     string;
+  instanceof_id?: string;
+}
+
+export interface AttributeAttributes {
+  type:       Type;
+  collection: Collection;
+}
+
+export enum Collection {
+  Hashtable = "hashtable",
+  List = "list",
+}
+
+export enum Status {
+  A = "A",
+  P = "P",
+}
+
+export interface ArticleChildren {
+  "@attributes": AttributeAttributes;
+  articleHeader: ArticleHeader;
+  articleList:   ArticleList;
+  image:         ImageElement[];
+  jwplayer:      Jwplayer;
+  byline:        BylineClass;
+}
+
+export interface ArticleHeader {
+  "@attributes": ArticleHeaderAttributes;
+  attribute:     Attribute;
+  mainterm:      Mainterm;
+  term:          Mainterm;
+  field:         ArticleHeaderField;
+  children:      ArticleHeaderChildren;
+}
+
+export interface ArticleHeaderAttributes {
+  id:   string;
+  type: Type;
+}
+
+export interface ArticleHeaderChildren {
+  "@attributes": AttributeAttributes;
+  image:         PurpleImage;
+}
+
+export interface PurpleImage {
+  "@attributes": ArticleHeaderAttributes;
+  attribute:     Attribute;
+  mainterm:      Mainterm;
+  term:          Mainterm;
+  field:         PurpleField;
+}
+
+export interface PurpleField {
+  "@attributes":  AttributeAttributes;
+  source:         string;
+  y:              Mainterm;
+  x:              Mainterm;
+  whRatio:        Mainterm;
+  vpWidth:        Mainterm;
+  viewports_json: string;
+  shapes:         Mainterm;
+  originalWidth:  string;
+  originalHeight: string;
+  name:           string;
+  lab_site_id:    string;
+  imageurl:       string;
+  imageCaption:   string;
+  external_id:    string;
+  cropw:          Mainterm;
+  croph:          Mainterm;
+  byline:         string;
+  bbRatio:        Mainterm;
+}
+
+export interface Mainterm {
+}
+
+export interface ArticleHeaderField {
+  "@attributes":         AttributeAttributes;
+  instanceofprototypeid: string;
+  viewports_json:        string;
+  title?:                string;
+}
+
+export interface ArticleList {
+  "@attributes": ArticleHeaderAttributes;
+  attribute:     Attribute;
+  mainterm:      Mainterm;
+  term:          Mainterm;
+  field:         ArticleHeaderField;
+  children:      ArticleListChildren;
+}
+
+export interface ArticleListChildren {
+  "@attributes": AttributeAttributes;
+  article:       ArticleElement[];
+}
+
+export interface ArticleElement {
+  "@attributes": ArticleHeaderAttributes;
+  attribute:     Attribute;
+  mainterm:      Mainterm;
+  term:          Mainterm;
+  field:         ArticleField;
+  tag:           Tag;
+  children:      ArticleChildrenClass;
+}
+
+export interface ArticleChildrenClass {
+  "@attributes": AttributeAttributes;
+  image:         FluffyImage;
+}
+
+export interface FluffyImage {
+  "@attributes": ArticleHeaderAttributes;
+  attribute:     Attribute;
+  mainterm:      Mainterm;
+  term:          Mainterm;
+  field:         FluffyField;
+}
+
+export interface FluffyField {
+  "@attributes":  AttributeAttributes;
+  imageCaption:   Mainterm;
+  heighty:        string;
+  heightx:        string;
+  y:              string;
+  heightw:        string;
+  heighth:        string;
+  cropw:          string;
+  croph:          string;
+  x:              string;
+  viewports_json: string;
+}
+
+export interface ArticleField {
+  "@attributes":  AttributeAttributes;
+  published:      Date;
+  cross_brand:    string;
+  byline:         Mainterm | string;
+  viewports_json: string;
+  title:          string;
+  subtitle:       Mainterm | string;
+  site_id:        string;
+  site_alias:     string;
+  showcomments:   Mainterm;
+  section:        string;
+  published_url:  string;
+  kicker:         Mainterm | string;
+  katsoCategory?: string;
+  hideAds?:       Mainterm;
+  bylineImage?:   Mainterm;
+}
+
+export interface Tag {
+  "@attributes": TagAttributes;
+  tag:           string[];
+}
+
+export interface TagAttributes {
+  type:        Type;
+  collection:  string;
+  multivalued: string;
+}
+
+export interface BylineClass {
+  "@attributes": ArticleHeaderAttributes;
+  attribute:     Attribute;
+  mainterm:      Mainterm;
+  term:          Mainterm;
+  field:         BylineField;
+}
+
+export interface BylineField {
+  "@attributes":  AttributeAttributes;
+  public_url:     Mainterm;
+  public_phone:   Mainterm;
+  public_email:   Mainterm;
+  lastname:       string;
+  firstname:      string;
+  email:          Mainterm;
+  description2:   Mainterm;
+  description:    Mainterm;
+  viewports_json: string;
+}
+
+export interface ImageElement {
+  "@attributes": ArticleHeaderAttributes;
+  attribute:     Attribute;
+  mainterm:      Mainterm;
+  term:          Mainterm;
+  field:         TentacledField;
+}
+
+export interface TentacledField {
+  "@attributes":  AttributeAttributes;
+  y:              string;
+  x:              string;
+  viewports_json: string;
+  metadata_key:   string;
+  cropw:          string;
+  croph:          string;
+}
+
+export interface Jwplayer {
+  "@attributes": ArticleHeaderAttributes;
+  attribute:     Attribute;
+  mainterm:      Mainterm;
+  term:          Mainterm;
+  field:         JwplayerField;
+}
+
+export interface JwplayerField {
+  "@attributes":  AttributeAttributes;
+  title:          string;
+  preview:        string;
+  description:    string;
+  viewports_json: string;
+  vid:            string;
+}
+
+export interface ArticleFieldClass {
+  "@attributes":       AttributeAttributes;
+  created_by_name:     string;
+  created_by:          string;
+  created:             string;
+  bodytext:            string;
+  lab_site_id:         string;
+  cross_brand:         string;
+  used_image_ids_json: string;
+  title:               string;
+  subtitle:            string;
+  structure_json:      string;
+  showonfp:            string;
+  publishhidden:       string;
+  page_template_alias: string;
+  lockUser:            string;
+  lockTime:            string;
+  lockSessionId:       string;
+  last_published_by:   string;
+  has_published:       string;
+  visibility_status:   Status;
+  published:           string;
+  published_urls_json: string;
+  published_url:       string;
+}
+
+export interface Primarytag {
+  "@attributes": AttributeAttributes;
+  section:       string;
+}
