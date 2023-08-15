@@ -71,9 +71,11 @@ export async function main(
   })
 
 
-
   return {
     body: feed.xml({indent: true}),
+    headers: {
+      'Content-Type': 'application/xml',
+    },
     statusCode: 200,
   };
 }
