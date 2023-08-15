@@ -75,34 +75,7 @@ export interface ArticleHeaderChildren {
 export interface PurpleImage {
   "@attributes": ArticleHeaderAttributes;
   attribute:     Attribute;
-  mainterm:      Mainterm;
-  term:          Mainterm;
-  field:         PurpleField;
-}
-
-export interface PurpleField {
-  "@attributes":  AttributeAttributes;
-  source:         string;
-  y:              Mainterm;
-  x:              Mainterm;
-  whRatio:        Mainterm;
-  vpWidth:        Mainterm;
-  viewports_json: string;
-  shapes:         Mainterm;
-  originalWidth:  string;
-  originalHeight: string;
-  name:           string;
-  lab_site_id:    string;
-  imageurl:       string;
-  imageCaption:   string;
-  external_id:    string;
-  cropw:          Mainterm;
-  croph:          Mainterm;
-  byline:         string;
-  bbRatio:        Mainterm;
-}
-
-export interface Mainterm {
+  field:         FluffyField;
 }
 
 export interface ArticleHeaderField {
@@ -115,8 +88,6 @@ export interface ArticleHeaderField {
 export interface ArticleList {
   "@attributes": ArticleHeaderAttributes;
   attribute:     Attribute;
-  mainterm:      Mainterm;
-  term:          Mainterm;
   field:         ArticleHeaderField;
   children:      ArticleListChildren;
 }
@@ -129,8 +100,6 @@ export interface ArticleListChildren {
 export interface ArticleElement {
   "@attributes": ArticleHeaderAttributes;
   attribute:     Attribute;
-  mainterm:      Mainterm;
-  term:          Mainterm;
   field:         ArticleField;
   tag:           Tag;
   children:      ArticleChildrenClass;
@@ -144,14 +113,11 @@ export interface ArticleChildrenClass {
 export interface FluffyImage {
   "@attributes": ArticleHeaderAttributes;
   attribute:     Attribute;
-  mainterm:      Mainterm;
-  term:          Mainterm;
   field:         FluffyField;
 }
 
 export interface FluffyField {
   "@attributes":  AttributeAttributes;
-  imageCaption:   Mainterm;
   heighty:        string;
   heightx:        string;
   y:              string;
@@ -162,6 +128,8 @@ export interface FluffyField {
   x:              string;
   viewports_json: string;
 }
+
+export interface Mainterm {}
 
 export interface ArticleField {
   "@attributes":  AttributeAttributes;
@@ -230,6 +198,10 @@ export interface TentacledField {
   metadata_key:   string;
   cropw:          string;
   croph:          string;
+  name:           string;
+  imageCaption:   string;
+  caption:        string;
+  byline:         string;
 }
 
 export interface Jwplayer {
@@ -278,4 +250,53 @@ export interface ArticleFieldClass {
 export interface Primarytag {
   "@attributes": AttributeAttributes;
   section:       string;
+}
+
+export interface Structure {
+  type:     string;
+  width:    number;
+  metadata: StructureMetadata;
+  id:       string;
+  selector: string;
+  children: StructureChild[];
+  node_id:  number;
+}
+
+export interface StructureChild {
+  type:     string;
+  width:    number;
+  metadata: PurpleMetadata;
+  id:       string;
+  children: ChildChild[];
+  node_id:  number;
+}
+
+export interface ChildChild {
+  type:     string;
+  width:    number;
+  metadata: StructureMetadata;
+  id:       string;
+  children: ChildChild[];
+  node_id:  number;
+}
+
+export interface StructureMetadata {
+  width: Width;
+}
+
+export interface Width {
+}
+
+export interface PurpleMetadata {
+  width:          BodyTextIndex;
+  float?:         Float;
+  bodyTextIndex?: BodyTextIndex;
+}
+
+export interface BodyTextIndex {
+  desktop?: number;
+}
+
+export interface Float {
+  desktop: string;
 }

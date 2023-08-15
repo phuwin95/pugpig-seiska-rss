@@ -2,34 +2,7 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import RSS from 'rss';
 import { v5 as uuidv5 } from 'uuid';
 import { Article } from './types/article';
-
-
-const formatDate = (date: string | number) => {
-  // Tue, 03 May 2022 20:45:46 +0000
-  const dateObj = new Date(date);
-  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const year = dateObj.getFullYear();
-  const month = months[dateObj.getMonth()];
-  const weekday = weekdays[dateObj.getDay()];
-  const day = dateObj.getDate();
-  const formattedDay = day < 10 ? `0${day}` : day;
-  const hours = dateObj.getHours();
-  const formattedHours = hours < 10 ? `0${hours}` : hours;
-  const minutes = dateObj.getMinutes();
-  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-  const seconds = dateObj.getSeconds();
-  const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-  const timezone = "+0300";
-  return `${weekday}, ${formattedDay} ${month} ${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${timezone}`;
-}
-
-const getImage = (article: Article) => {
-  const baseUrl = "https://image.seiska.fi";
-  const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
-  const baseImage = `${baseUrl}/${id}.jpeg?width=710&height=400`;
-  return baseImage;
-};
+import { formatDate, getContent, getMainImage } from './libs';
 
 export async function main(
   event: APIGatewayProxyEventV2,
@@ -51,10 +24,10 @@ export async function main(
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
     const description = article?.field?.subtitle;
-    const content = article?.field?.bodytext;
+    const content = getContent(article);
     const pubDate = formatDate(+article?.field?.published * 1000);
     const category = article?.primarytag?.section;
-    const image = getImage(article);
+    const image = getMainImage(article);
     const feedItem = {
       title, description, url: '', date: '',
       custom_elements: [
