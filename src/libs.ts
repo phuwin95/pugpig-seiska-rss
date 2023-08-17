@@ -36,7 +36,7 @@ export const getMainImage = (article: Article) => {
   const baseUrl = "https://image.seiska.fi";
   const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
   const cropParams = getCropParams(article?.children?.articleHeader?.children?.image?.field);
-  const baseImage = `${baseUrl}/${id}.png?width=710&height=400&${cropParams}`;
+  const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
   return baseImage;
 };
 
@@ -62,7 +62,7 @@ export const getContent = (article: Article) => {
     const baseUrl = "https://image.seiska.fi";
     const imageEl = article?.children?.image?.find(({attribute}) => +attribute?.id === image?.node_id);
     const id = imageEl?.attribute?.instanceof_id;
-    const baseImage = `${baseUrl}/${id}.png?width=710&height=400`;
+    const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400`;
     const imageElement = getImageElement(baseImage, imageEl?.field.imageCaption);
     htmlMap.splice(image?.metadata?.bodyTextIndex?.desktop, 0, imageElement);
   });
