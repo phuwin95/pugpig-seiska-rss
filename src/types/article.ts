@@ -70,6 +70,7 @@ export interface ArticleHeaderAttributes {
 export interface ArticleHeaderChildren {
   "@attributes": AttributeAttributes;
   image:         PurpleImage;
+  jwplayer:      Jwplayer;
 }
 
 export interface PurpleImage {

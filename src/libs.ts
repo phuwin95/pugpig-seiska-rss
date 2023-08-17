@@ -4,10 +4,10 @@ import { Article, Structure } from "./types/article";
 export const getCropParams = (crop: { cropw: string; croph: string; x: string; y: string }) => {
   let params = '';
   if (crop) {
-    if (crop.x) params += `x=${crop.x}&`;
-    if (crop.y) params += `y=${crop.y}&`;
-    if (crop.cropw) params += `cropw=${crop.cropw}&`;
-    if (crop.croph) params += `croph=${crop.croph}&`;
+    if (typeof crop.x === 'string') params += `x=${crop.x}&`;
+    if (typeof crop.y === 'string') params += `y=${crop.y}&`;
+    if (typeof crop.cropw === 'string') params += `cropw=${crop.cropw}&`;
+    if (typeof crop.croph === 'string') params += `croph=${crop.croph}&`;
   }
   return params;
 };
@@ -35,9 +35,12 @@ export const formatDate = (date: string | number) => {
 export const getMainImage = (article: Article) => {
   const baseUrl = "https://image.seiska.fi";
   const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
-  const cropParams = getCropParams(article?.children?.articleHeader?.children?.image?.field);
-  const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
-  return baseImage;
+  if (id) {
+    const cropParams = getCropParams(article?.children?.articleHeader?.children?.image?.field);
+    const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
+    return baseImage;
+  }
+  return article?.children?.articleHeader?.children?.jwplayer?.field?.preview;
 };
 
 export const getImageElement = (url: string, caption?: string) => `<figure class="pp-media">
