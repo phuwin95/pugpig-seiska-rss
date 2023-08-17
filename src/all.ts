@@ -4,6 +4,8 @@ import { v5 as uuidv5 } from 'uuid';
 import { Article } from './types/article';
 import { formatDate, getContent, getMainImage } from './libs';
 
+
+
 export async function main(
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> {
@@ -23,17 +25,33 @@ export async function main(
     }
   });
 
+  type Flag = {
+    [key: string]: boolean
+  };
+
+  const guids : Flag= {};
+  const titles:  Flag= {};
+  const descriptions: Flag = {};
   data.result.forEach((item: any) => {
+
     const article : Article = item?.article;
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
     const description = article?.field?.subtitle;
+
+    // skip if guid, title or description already exists
+    if (guids[guid] || titles[title] || descriptions[description]) return;
+    guids[guid] = true;
+    titles[title] = true;
+    descriptions[description] = true;
+
+
     const content = getContent(article);
     const pubDate = formatDate(+article?.field?.published * 1000);
     const category = article?.primarytag?.section;
     const image = getMainImage(article);
     const feedItem = {
-      title, description, url: '', date: '',
+      guid, title, description, url: '', date: '',
       custom_elements: [
         {'rss:guid': guid},
         {'rss:title': title},
