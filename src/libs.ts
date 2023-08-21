@@ -1,5 +1,7 @@
 import { parse } from 'node-html-parser';
 import { Article, Structure } from "./types/article";
+import { v5 as uuidv5 } from 'uuid';
+import RSS from 'rss';
 
 export const getCropParams = (crop: { cropw: string; croph: string; x: string; y: string }) => {
   let params = '';
@@ -10,6 +12,47 @@ export const getCropParams = (crop: { cropw: string; croph: string; x: string; y
     if (typeof crop.croph === 'string') params += `croph=${crop.croph}&`;
   }
   return params;
+};
+
+export const addItems = (feed: RSS, data: any) => {
+  type Flag = {
+    [key: string]: boolean
+  };
+
+  const guids : Flag= {};
+  const titles:  Flag= {};
+  const descriptions: Flag = {};
+  data.result.forEach((item: any) => {
+
+    const article : Article = item?.article;
+    const guid = uuidv5(article?.attribute.id, uuidv5.URL);
+    const title = article?.field?.title;
+    const description = article?.field?.subtitle;
+
+    // skip if guid, title or description already exists
+    if (guids[guid] || titles[title] || descriptions[description]) return;
+    guids[guid] = true;
+    titles[title] = true;
+    descriptions[description] = true;
+
+    const content = getContent(article);
+    const pubDate = formatDate(+article?.field?.published * 1000);
+    const category = article?.primarytag?.section;
+    const image = getMainImage(article);
+    const feedItem = {
+      guid, title, description, url: '', date: '',
+      custom_elements: [
+        {'rss:guid': guid},
+        {'rss:title': title},
+        {'rss:description': description},
+        {'content:encoded': content},
+        {'rss:pubDate': pubDate},
+        {'rss:category': category},
+        {'main_image': image},
+      ],
+    }
+    feed.item(feedItem);
+  });
 };
 
 export const formatDate = (date: string | number) => {
