@@ -14,7 +14,11 @@ export const getCropParams = (crop: { cropw: string; croph: string; x: string; y
   return params;
 };
 
-
+/**
+ * filters and manipulates the articles into pugpig rss feed items then adds them to the feed
+ * @param feed RSS
+ * @param articles FullArticle[]
+ */
 export const addItems = (feed: RSS, articles:  FullArticle[]) => {
   type Flag = {
     [key: string]: boolean
@@ -57,6 +61,11 @@ export const addItems = (feed: RSS, articles:  FullArticle[]) => {
   });
 };
 
+/**
+ * formats date into rss feed pubDate in the format: Tue, 03 May 2022 20:45:46 +0300
+ * @param date string | number
+ * @returns formatted date into rss feed pubDate in the format: Tue, 03 May 2022 20:45:46 +0300
+ */
 export const formatDate = (date: string | number) => {
   // Tue, 03 May 2022 20:45:46 +0000
   const dateObj = new Date(date);
@@ -77,6 +86,11 @@ export const formatDate = (date: string | number) => {
   return `${weekday}, ${formattedDay} ${month} ${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${timezone}`;
 }
 
+/**
+ * Get the main image of the article, if its not available, get the jwplayer preview image
+ * @param article Article
+ * @returns image url
+ */
 export const getMainImage = (article: Article) => {
   const baseUrl = "https://image.seiska.fi";
   const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
@@ -88,12 +102,23 @@ export const getMainImage = (article: Article) => {
   return article?.children?.articleHeader?.children?.jwplayer?.field?.preview;
 };
 
+/**
+ * return a string of an html element formatted for pugpig image element
+ * @param url url
+ * @param caption caption
+ * @returns string
+ */
 export const getImageElement = (url: string, caption?: string) => `<figure class="pp-media">
   <img class="pp-media__image" alt="${caption}" src="${url}">
   <figcaption class="pp-media__caption">${caption}</figcaption>
 </figure>`;
 
 
+/**
+ * formats and inserts elements into the bodytext
+ * @param article Article
+ * @returns string
+ */
 export const getContent = (article: Article) => {
 
   // get the images from the bodytext structure
