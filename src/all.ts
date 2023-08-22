@@ -1,12 +1,10 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { APIGatewayProxyResultV2 } from 'aws-lambda';
 import RSS from 'rss';
 import { addItems } from './libs';
 
 
 
-export async function main(
-  event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> {
+export async function main(): Promise<APIGatewayProxyResultV2> {
 
   const url = "https://api.seiska.fi/api/v1/article?query=*%3A*+AND+visibility_status%3AP+AND+-cross_brand%3A1&orderBy=published&content=full&limit=100"
   const response = await fetch(url);
@@ -23,7 +21,7 @@ export async function main(
     }
   });
 
-  addItems(feed, data);
+  addItems(feed, data.result);
 
   return {
     body: feed.xml({indent: true}),

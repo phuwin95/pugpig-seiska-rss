@@ -1,5 +1,5 @@
 import { parse } from 'node-html-parser';
-import { Article, Structure } from "./types/article";
+import { Article, FullArticle, Structure } from "./types/article";
 import { v5 as uuidv5 } from 'uuid';
 import RSS from 'rss';
 
@@ -14,17 +14,19 @@ export const getCropParams = (crop: { cropw: string; croph: string; x: string; y
   return params;
 };
 
-export const addItems = (feed: RSS, data: any) => {
+
+export const addItems = (feed: RSS, articles:  FullArticle[]) => {
   type Flag = {
     [key: string]: boolean
   };
 
-  const guids : Flag= {};
-  const titles:  Flag= {};
+  const guids : Flag = {};
+  const titles:  Flag = {};
   const descriptions: Flag = {};
-  data.result.forEach((item: any) => {
 
-    const article : Article = item?.article;
+  articles.forEach((item) => {
+
+    const article = item?.article;
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
     const description = article?.field?.subtitle;

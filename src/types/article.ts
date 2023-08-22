@@ -1,3 +1,7 @@
+export interface FullArticle {
+  article: Article;
+}
+
 export interface Article {
   "@attributes": ArticleAttributes;
   attribute:     Attribute;
