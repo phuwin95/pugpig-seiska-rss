@@ -12,6 +12,8 @@ export async function main(): Promise<APIGatewayProxyResultV2> {
   url.searchParams.append('sortorder', 'desc');
   url.searchParams.append('limit', '20');
 
+  const KILKAYA_ACCESS_TOKEN = process.env.KILKAYA_ACCESS_TOKEN;
+  console.log('KILKAYA_ACCESS_TOKEN', KILKAYA_ACCESS_TOKEN);
   return {
     body: JSON.stringify({message: 'Successful lambda invocation popular'}),
     statusCode: 200,

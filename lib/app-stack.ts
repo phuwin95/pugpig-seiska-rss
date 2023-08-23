@@ -4,6 +4,7 @@ import { Construct } from 'constructs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { join } from 'path';
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 export default class AppStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -25,12 +26,18 @@ export default class AppStack extends Stack {
       entry: join(__dirname, `/../src/frontpage.ts`),
     });
 
+    // fetch KILKAYA_ACCESS_TOKEN from secrets manager
+    const KILKAYA_ACCESS_TOKEN = Secret.fromSecretNameV2(this, 'KILKAYA_ACCESS_TOKEN', 'kilkaya_access_token').secretValue.toString();
+
     const popular = new NodejsFunction(this, 'pugpig-rss-popular', {
       memorySize: 256,
       timeout: Duration.seconds(5),
       runtime: Runtime.NODEJS_18_X,
       handler: 'main',
       entry: join(__dirname, `/../src/popular.ts`),
+      environment: {
+        KILKAYA_ACCESS_TOKEN
+      }
     });
 
     // create an api gateway for the lambda
@@ -46,6 +53,7 @@ export default class AppStack extends Stack {
     const getFrontpageIntegration = new apigateway.LambdaIntegration(frontpage, {
       requestTemplates: { "application/json": '{ "statusCode": "200" }' }
     });
+
 
     const getPopularIntegration = new apigateway.LambdaIntegration(popular, {
       requestTemplates: { "application/json": '{ "statusCode": "200" }' }
