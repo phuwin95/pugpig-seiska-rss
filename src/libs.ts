@@ -14,6 +14,8 @@ export const getCropParams = (crop: { cropw: string; croph: string; x: string; y
   return params;
 };
 
+const getAuthor = (article: Article) => article?.children?.byline?.field?.firstname + ' ' + article?.children?.byline?.field?.lastname;
+
 /**
  * filters and manipulates the articles into pugpig rss feed items then adds them to the feed
  * @param feed RSS
@@ -45,15 +47,12 @@ export const addItems = (feed: RSS, articles:  FullArticle[]) => {
     const pubDate = formatDate(+article?.field?.published * 1000);
     const category = article?.primarytag?.section;
     const image = getMainImage(article);
+    const author = getAuthor(article);
     const feedItem = {
       guid, title, description, url: '', date: '',
+      pubDate, category, author, image,
       custom_elements: [
-        {'rss:guid': guid},
-        {'rss:title': title},
-        {'rss:description': description},
         {'content:encoded': content},
-        {'rss:pubDate': pubDate},
-        {'rss:category': category},
         {'main_image': image},
       ],
     }

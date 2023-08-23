@@ -17,7 +17,6 @@ export async function main(): Promise<APIGatewayProxyResultV2> {
     site_url: 'https://www.seiska.fi',
     custom_namespaces: {
       'content': 'http://purl.org/rss/1.0/modules/content/',
-      'rss': 'http://purl.org/rss/1.0/',
     }
   });
 
