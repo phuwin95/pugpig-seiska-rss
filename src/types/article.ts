@@ -55,6 +55,15 @@ export interface ArticleChildren {
   image:         ImageElement[];
   jwplayer:      Jwplayer;
   byline:        BylineClass;
+  markup:        MarkUp[];
+}
+
+export interface MarkUp {
+  "@attributes": AttributeAttributes;
+  attribute:     Attribute;
+  field: {
+    markup: string;
+  }
 }
 
 export interface ArticleHeader {

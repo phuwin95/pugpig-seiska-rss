@@ -124,19 +124,31 @@ export const getContent = (article: Article) => {
   const structure : Structure[] = JSON.parse(article?.field?.structure_json);
   const bodyText = structure.find((item: Structure) => item.type === 'bodytext');
   const images = bodyText?.children?.filter((item) => item.type === 'image');
+  const markups = bodyText?.children?.filter((item) => item.type === 'markup');
 
-  // get htmlMap to insert images into the bodytext
+  // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
   const htmlMap = html.childNodes.map((item) => item.toString());
 
+  // insert images into the bodytext
   images?.forEach(image => {
-    if (!image?.metadata?.bodyTextIndex?.desktop) return;
+    const index = image?.metadata?.bodyTextIndex?.desktop;
+    if (typeof index !== 'number') return;
     const baseUrl = "https://image.seiska.fi";
     const imageEl = article?.children?.image?.find(({attribute}) => +attribute?.id === image?.node_id);
     const id = imageEl?.attribute?.instanceof_id;
     const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400`;
     const imageElement = getImageElement(baseImage, imageEl?.field.imageCaption);
-    htmlMap.splice(image?.metadata?.bodyTextIndex?.desktop, 0, imageElement);
+    htmlMap.splice(index, 0, imageElement);
+  });
+
+  // insert markups into the bodytext
+  markups?.forEach(markup => {
+    const index = markup?.metadata?.bodyTextIndex?.desktop;
+    if (typeof index !== 'number') return;
+    const markUpEl = article?.children?.markup?.find(({attribute}) => +attribute?.id === markup?.node_id);
+    if (!markUpEl?.field?.markup) return;
+    htmlMap.splice(index, 0, markUpEl?.field?.markup);
   });
 
   return htmlMap.join('');
