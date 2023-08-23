@@ -15,37 +15,22 @@ export interface Article {
 
 export interface ArticleAttributes {
   id:    string;
-  type:  Type;
+  type:  string;
   dirty: string;
-}
-
-export enum Type {
-  Node = "node",
-  Property = "property",
 }
 
 export interface Attribute {
   "@attributes":  AttributeAttributes;
   id:             string;
-  status:         Status;
+  status:         string;
   user_id:        string;
   parent_id?:     string;
   instanceof_id?: string;
 }
 
 export interface AttributeAttributes {
-  type:       Type;
-  collection: Collection;
-}
-
-export enum Collection {
-  Hashtable = "hashtable",
-  List = "list",
-}
-
-export enum Status {
-  A = "A",
-  P = "P",
+  type?:       string;
+  collection?: string;
 }
 
 export interface ArticleChildren {
@@ -53,9 +38,9 @@ export interface ArticleChildren {
   articleHeader: ArticleHeader;
   articleList:   ArticleList;
   image:         ImageElement[];
-  jwplayer:      Jwplayer;
+  jwplayer?:      Jwplayer;
   byline:        BylineClass;
-  markup:        MarkUp[];
+  markup?:        MarkUp[] | MarkUp;
 }
 
 export interface MarkUp {
@@ -77,13 +62,13 @@ export interface ArticleHeader {
 
 export interface ArticleHeaderAttributes {
   id:   string;
-  type: Type;
+  type: string;
 }
 
 export interface ArticleHeaderChildren {
   "@attributes": AttributeAttributes;
   image:         PurpleImage;
-  jwplayer:      Jwplayer;
+  jwplayer?:      Jwplayer;
 }
 
 export interface PurpleImage {
@@ -132,22 +117,22 @@ export interface FluffyImage {
 
 export interface FluffyField {
   "@attributes":  AttributeAttributes;
-  heighty:        string;
-  heightx:        string;
-  y:              string;
-  heightw:        string;
-  heighth:        string;
-  cropw:          string;
-  croph:          string;
-  x:              string;
-  viewports_json: string;
+  heighty?:        string;
+  heightx?:        string;
+  y?:              string;
+  heightw?:        string;
+  heighth?:        string;
+  cropw?:          string;
+  croph?:          string;
+  x?:              string;
+  viewports_json?: string;
 }
 
 export interface Mainterm {}
 
 export interface ArticleField {
   "@attributes":  AttributeAttributes;
-  published:      Date;
+  published:      string;
   cross_brand:    string;
   byline:         Mainterm | string;
   viewports_json: string;
@@ -170,7 +155,7 @@ export interface Tag {
 }
 
 export interface TagAttributes {
-  type:        Type;
+  type:        string;
   collection:  string;
   multivalued: string;
 }
@@ -206,24 +191,24 @@ export interface ImageElement {
 
 export interface TentacledField {
   "@attributes":  AttributeAttributes;
-  y:              string;
-  x:              string;
-  viewports_json: string;
-  metadata_key:   string;
-  cropw:          string;
-  croph:          string;
-  name:           string;
-  imageCaption:   string;
-  caption:        string;
-  byline:         string;
+  y?:              string;
+  x?:              string;
+  viewports_json?: string;
+  metadata_key?:   string;
+  cropw?:          string;
+  croph?:          string;
+  name?:           string;
+  imageCaption?:   string;
+  caption?:        string;
+  byline?:         string;
 }
 
 export interface Jwplayer {
-  "@attributes": ArticleHeaderAttributes;
-  attribute:     Attribute;
-  mainterm:      Mainterm;
-  term:          Mainterm;
-  field:         JwplayerField;
+  "@attributes"?: ArticleHeaderAttributes;
+  attribute?:     Attribute;
+  mainterm?:      Mainterm;
+  term?:          Mainterm;
+  field?:         JwplayerField;
 }
 
 export interface JwplayerField {
@@ -255,7 +240,7 @@ export interface ArticleFieldClass {
   lockSessionId:       string;
   last_published_by:   string;
   has_published:       string;
-  visibility_status:   Status;
+  visibility_status:   string;
   published:           string;
   published_urls_json: string;
   published_url:       string;

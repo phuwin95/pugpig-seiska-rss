@@ -3,7 +3,7 @@ import { Article, FullArticle, Structure } from "./types/article";
 import { v5 as uuidv5 } from 'uuid';
 import RSS from 'rss';
 
-export const getCropParams = (crop: { cropw: string; croph: string; x: string; y: string }) => {
+export const getCropParams = (crop?: { cropw?: string; croph?: string; x?: string; y?: string }) => {
   let params = '';
   if (crop) {
     if (typeof crop.x === 'string') params += `x=${crop.x}&`;
@@ -93,12 +93,13 @@ export const formatDate = (date: string | number) => {
 export const getMainImage = (article: Article) => {
   const baseUrl = "https://image.seiska.fi";
   const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
+  if (!article?.children?.articleHeader?.children?.image?.field) return article?.children?.articleHeader?.children?.jwplayer?.field?.preview
   if (id) {
     const cropParams = getCropParams(article?.children?.articleHeader?.children?.image?.field);
     const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
     return baseImage;
   }
-  return article?.children?.articleHeader?.children?.jwplayer?.field?.preview;
+  return ;
 };
 
 /**
