@@ -146,7 +146,8 @@ export const getContent = (article: Article) => {
   markups?.forEach(markup => {
     const index = markup?.metadata?.bodyTextIndex?.desktop;
     if (typeof index !== 'number') return;
-    const markUpEl = article?.children?.markup?.find(({attribute}) => +attribute?.id === markup?.node_id);
+    const markupObj =  article?.children?.markup;
+    const markUpEl = Array.isArray(markupObj) ? markupObj.find(({attribute}) => +attribute?.id === markup?.node_id) : markupObj;
     if (!markUpEl?.field?.markup) return;
     htmlMap.splice(index, 0, markUpEl?.field?.markup);
   });
