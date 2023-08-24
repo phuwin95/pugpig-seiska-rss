@@ -15,7 +15,7 @@ export async function main(): Promise<APIGatewayProxyResultV2> {
   const secretManager = new SecretsManager({
     region: 'eu-west-1',
   });
-  const secret = await secretManager.getSecretValue({SecretId: 'kilkayta-access-token'}).promise();
+  const secret = await secretManager.getSecretValue({SecretId: 'kilkaya-access-token'}).promise();
   console.log(secret.SecretString);
   return {
     body: JSON.stringify({message: 'Successful lambda invocation popular'}),
