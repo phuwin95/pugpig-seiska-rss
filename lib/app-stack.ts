@@ -35,7 +35,7 @@ export default class AppStack extends Stack {
     });
 
     // grant read access to the secret for the lambda function
-    const kilkayaAccessTokenSecret = Secret.fromSecretNameV2(this, 'kilkaya-access-token', 'kilkayta-access-token');
+    const kilkayaAccessTokenSecret = Secret.fromSecretNameV2(this, 'kilkaya-access-token', 'kilkaya-access-token');
     kilkayaAccessTokenSecret.grantRead(popular);
 
     // create an api gateway for the lambda
