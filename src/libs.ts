@@ -2,20 +2,44 @@ import { parse } from "node-html-parser";
 import { Article, FullArticle, Structure } from "./types/article";
 import { v5 as uuidv5 } from "uuid";
 import RSS from "rss";
+import { SecretsManager } from "aws-sdk";
+import { KilkayaResponse } from "./types/kilkaya";
+
+export const getAccessToken = async () => {
+  const secretManager = new SecretsManager({
+    region: "eu-west-1",
+  });
+  const secret = await secretManager
+    .getSecretValue({ SecretId: "kilkaya-access-token" })
+    .promise();
+  const accessToken = secret.SecretString;
+  return accessToken;
+};
+
+export const fetchKilkayaWithRetry = async (
+  url,
+  options,
+  delay = 2000
+): Promise<KilkayaResponse> => {
+  console.log("---trying fetch");
+  const response = await fetch(url, options);
+  const data: KilkayaResponse = await response.json();
+  if (data.message === "Query was delayed") {
+    // sleep for 2s
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    return await fetchKilkayaWithRetry(url, options, delay);
+  }
+  return data;
+};
 
 export const getDates = () => {
   const start = new Date();
-  const offset = start.getTimezoneOffset();
-
-  start.setHours(0 + offset, 0, 0, 0);
+  start.setHours(0, 0, 0, 0);
   const end = new Date();
-  const hour = end.getHours() + offset;
-  const actualHour = hour > 23 ? hour - 24 : hour;
-  end.setHours(actualHour, 59, 59, 999);
-
+  end.setHours(23, 59, 59, 59);
   return {
-    start: start.toISOString(),
-    end: end.toISOString(),
+    start: start.toISOString().slice(0, -5),
+    end: end.toISOString().slice(0, -5),
   };
 };
 export const getCropParams = (crop?: {

@@ -1,25 +1,26 @@
 export interface KilkayaResponse {
-  meta:  Meta;
+  meta: Meta;
   links: any[];
-  data:  Datum[];
+  data: Datum[];
+  message: string;
 }
 
 export interface Datum {
-  type:       Type;
-  id:         ID;
+  type: Type;
+  id: ID;
   attributes: Attributes;
 }
 
 export interface Attributes {
-  _id:         ID;
-  domain:      Domain;
+  _id: ID;
+  domain: Domain;
   articleView: number;
-  url:         string;
+  url: string;
 }
 
 export interface ID {
   domain: Domain;
-  url:    string;
+  url: string;
 }
 
 export type Domain = "seiska.fi";
@@ -27,26 +28,27 @@ export type Domain = "seiska.fi";
 export type Type = "analytics";
 
 export interface Meta {
-  from:            Date;
-  to:              Date;
-  tz:              string;
-  aggregate:       string[];
-  schemaname:      string;
-  schemaversion:   string;
-  filter:          Filter[];
-  prefilter:       any[];
-  reqtime:         number;
-  qtime:           number;
-  qlatency:        number;
-  cached:          boolean;
-  cacheid:         string;
-  cachetimeout:    number;
-  progress:        null;
+  from: Date;
+  to: Date;
+  tz: string;
+  aggregate: string[];
+  schemaname: string;
+  schemaversion: string;
+  filter: Filter[];
+  prefilter: any[];
+  reqtime: number;
+  qtime: number;
+  qlatency: number;
+  cached: boolean;
+  cacheid: string;
+  cachetimeout: number;
+  progress: null;
   resulttimestamp: Date;
+  delayed: boolean;
 }
 
 export interface Filter {
-  column:   string;
+  column: string;
   operator: string;
-  value:    Domain;
+  value: Domain;
 }

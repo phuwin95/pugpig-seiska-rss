@@ -1,12 +1,16 @@
 import { APIGatewayProxyResultV2 } from "aws-lambda";
-import { SecretsManager } from "aws-sdk";
-import { KilkayaResponse } from "./types/kilkaya";
 import RSS from "rss";
-import { addItems, getDates } from "./libs";
+import {
+  addItems,
+  fetchKilkayaWithRetry,
+  getAccessToken,
+  getDates,
+} from "./libs";
 export async function main(): Promise<APIGatewayProxyResultV2> {
+  const accessToken = await getAccessToken();
+
   const url = new URL("https://eu4.dataapi.kilkaya.com/api/query");
   const { start, end } = getDates();
-  console.log(start, end);
   url.searchParams.append("datefrom", start);
   url.searchParams.append("dateto", end);
   url.searchParams.append("schemaname", "pageview");
@@ -16,25 +20,16 @@ export async function main(): Promise<APIGatewayProxyResultV2> {
   url.searchParams.append("sortorder", "desc");
   url.searchParams.append("limit", "20");
 
-  const secretManager = new SecretsManager({
-    region: "eu-west-1",
-  });
-  const secret = await secretManager
-    .getSecretValue({ SecretId: "kilkaya-access-token" })
-    .promise();
-  console.log(secret.SecretString);
-  const accessToken = secret.SecretString;
-  const response = await fetch(url.href, {
+  const { data } = await fetchKilkayaWithRetry(url.href, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  const { data }: KilkayaResponse = await response.json();
 
   const articleIds = data
     ?.map((article) => Number(article?.attributes?.url?.split("/").pop()))
     .filter(Boolean)
-    .filter(isNaN);
+    .filter((id) => !isNaN(id));
 
   // we fetch the content full of the articles separately
   const query = articleIds.join(" OR ");
