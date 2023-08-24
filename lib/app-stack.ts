@@ -4,6 +4,7 @@ import { Construct } from 'constructs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { join } from 'path';
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 export default class AppStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -32,6 +33,10 @@ export default class AppStack extends Stack {
       handler: 'main',
       entry: join(__dirname, `/../src/popular.ts`),
     });
+
+    // grant read access to the secret for the lambda function
+    const kilkayaAccessTokenSecret = Secret.fromSecretNameV2(this, 'kilkaya-access-token', 'kilkayta-access-token');
+    kilkayaAccessTokenSecret.grantRead(popular);
 
     // create an api gateway for the lambda
     const api = new apigateway.RestApi(this, "widgets-api", {
