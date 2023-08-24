@@ -1,5 +1,5 @@
 import { APIGatewayProxyResultV2 } from 'aws-lambda';
-
+import { SecretsManager } from 'aws-sdk';
 export async function main(): Promise<APIGatewayProxyResultV2> {
 
   const url = new URL('https://eu4.dataapi.kilkaya.com/api/query');
@@ -12,8 +12,9 @@ export async function main(): Promise<APIGatewayProxyResultV2> {
   url.searchParams.append('sortorder', 'desc');
   url.searchParams.append('limit', '20');
 
-  const KILKAYA_ACCESS_TOKEN = process.env.KILKAYA_ACCESS_TOKEN;
-  console.log('KILKAYA_ACCESS_TOKEN', KILKAYA_ACCESS_TOKEN);
+  const secretManager = new SecretsManager();
+  const secret = await secretManager.getSecretValue({SecretId: 'kilkayta-access-token'}).promise();
+  console.log(secret.SecretString);
   return {
     body: JSON.stringify({message: 'Successful lambda invocation popular'}),
     statusCode: 200,

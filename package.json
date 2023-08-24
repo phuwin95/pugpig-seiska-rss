@@ -11,6 +11,7 @@
     "cdk": "cdk"
   },
   "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
     "@types/jest": "^29.5.3",
     "@types/node": "20.4.9",
     "@types/rss": "^0.0.30",
@@ -27,6 +28,7 @@
   "dependencies": {
     "@types/aws-lambda": "^8.10.119",
     "aws-cdk-lib": "2.91.0",
+    "aws-sdk": "^2.1443.0",
     "constructs": "^10.0.0",
     "node-html-parser": "^6.1.5",
     "rss": "^1.2.2",
