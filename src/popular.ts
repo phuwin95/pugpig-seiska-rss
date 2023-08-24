@@ -12,7 +12,9 @@ export async function main(): Promise<APIGatewayProxyResultV2> {
   url.searchParams.append('sortorder', 'desc');
   url.searchParams.append('limit', '20');
 
-  const secretManager = new SecretsManager();
+  const secretManager = new SecretsManager({
+    region: 'eu-west-1',
+  });
   const secret = await secretManager.getSecretValue({SecretId: 'kilkayta-access-token'}).promise();
   console.log(secret.SecretString);
   return {
