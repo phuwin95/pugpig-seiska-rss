@@ -1,37 +1,59 @@
-import { parse } from 'node-html-parser';
+import { parse } from "node-html-parser";
 import { Article, FullArticle, Structure } from "./types/article";
-import { v5 as uuidv5 } from 'uuid';
-import RSS from 'rss';
+import { v5 as uuidv5 } from "uuid";
+import RSS from "rss";
 
-export const getCropParams = (crop?: { cropw?: string; croph?: string; x?: string; y?: string }) => {
-  let params = '';
+export const getDates = () => {
+  const start = new Date();
+  const offset = start.getTimezoneOffset();
+
+  start.setHours(0 + offset, 0, 0, 0);
+  const end = new Date();
+  const hour = end.getHours() + offset;
+  const actualHour = hour > 23 ? hour - 24 : hour;
+  end.setHours(actualHour, 59, 59, 999);
+
+  return {
+    start: start.toISOString(),
+    end: end.toISOString(),
+  };
+};
+export const getCropParams = (crop?: {
+  cropw?: string;
+  croph?: string;
+  x?: string;
+  y?: string;
+}) => {
+  let params = "";
   if (crop) {
-    if (typeof crop.x === 'string') params += `x=${crop.x}&`;
-    if (typeof crop.y === 'string') params += `y=${crop.y}&`;
-    if (typeof crop.cropw === 'string') params += `cropw=${crop.cropw}&`;
-    if (typeof crop.croph === 'string') params += `croph=${crop.croph}&`;
+    if (typeof crop.x === "string") params += `x=${crop.x}&`;
+    if (typeof crop.y === "string") params += `y=${crop.y}&`;
+    if (typeof crop.cropw === "string") params += `cropw=${crop.cropw}&`;
+    if (typeof crop.croph === "string") params += `croph=${crop.croph}&`;
   }
   return params;
 };
 
-const getAuthor = (article: Article) => article?.children?.byline?.field?.firstname + ' ' + article?.children?.byline?.field?.lastname;
+const getAuthor = (article: Article) =>
+  article?.children?.byline?.field?.firstname +
+  " " +
+  article?.children?.byline?.field?.lastname;
 
 /**
  * filters and manipulates the articles into pugpig rss feed items then adds them to the feed
  * @param feed RSS
  * @param articles FullArticle[]
  */
-export const addItems = (feed: RSS, articles:  FullArticle[]) => {
+export const addItems = (feed: RSS, articles: FullArticle[]) => {
   type Flag = {
-    [key: string]: boolean
+    [key: string]: boolean;
   };
 
-  const guids : Flag = {};
-  const titles:  Flag = {};
+  const guids: Flag = {};
+  const titles: Flag = {};
   const descriptions: Flag = {};
 
   articles.forEach((item) => {
-
     const article = item?.article;
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
@@ -49,13 +71,17 @@ export const addItems = (feed: RSS, articles:  FullArticle[]) => {
     const image = getMainImage(article);
     const author = getAuthor(article);
     const feedItem = {
-      guid, title, description, url: '', date: '',
-      pubDate, category, author, image,
-      custom_elements: [
-        {'content:encoded': content},
-        {'main_image': image},
-      ],
-    }
+      guid,
+      title,
+      description,
+      url: "",
+      date: "",
+      pubDate,
+      category,
+      author,
+      image,
+      custom_elements: [{ "content:encoded": content }, { main_image: image }],
+    };
     feed.item(feedItem);
   });
 };
@@ -68,8 +94,21 @@ export const addItems = (feed: RSS, articles:  FullArticle[]) => {
 export const formatDate = (date: string | number) => {
   // Tue, 03 May 2022 20:45:46 +0000
   const dateObj = new Date(date);
-  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const year = dateObj.getFullYear();
   const month = months[dateObj.getMonth()];
   const weekday = weekdays[dateObj.getDay()];
@@ -83,7 +122,7 @@ export const formatDate = (date: string | number) => {
   const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
   const timezone = "+0300";
   return `${weekday}, ${formattedDay} ${month} ${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${timezone}`;
-}
+};
 
 /**
  * Get the main image of the article, if its not available, get the jwplayer preview image
@@ -92,14 +131,18 @@ export const formatDate = (date: string | number) => {
  */
 export const getMainImage = (article: Article) => {
   const baseUrl = "https://image.seiska.fi";
-  const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
-  if (!article?.children?.articleHeader?.children?.image?.field) return article?.children?.articleHeader?.children?.jwplayer?.field?.preview
+  const id =
+    article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
+  if (!article?.children?.articleHeader?.children?.image?.field)
+    return article?.children?.articleHeader?.children?.jwplayer?.field?.preview;
   if (id) {
-    const cropParams = getCropParams(article?.children?.articleHeader?.children?.image?.field);
+    const cropParams = getCropParams(
+      article?.children?.articleHeader?.children?.image?.field
+    );
     const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
     return baseImage;
   }
-  return ;
+  return;
 };
 
 /**
@@ -108,11 +151,13 @@ export const getMainImage = (article: Article) => {
  * @param caption caption
  * @returns string
  */
-export const getImageElement = (url: string, caption?: string) => `<figure class="pp-media">
+export const getImageElement = (
+  url: string,
+  caption?: string
+) => `<figure class="pp-media">
   <img class="pp-media__image" alt="${caption}" src="${url}">
   <figcaption class="pp-media__caption">${caption}</figcaption>
 </figure>`;
-
 
 /**
  * formats and inserts elements into the bodytext
@@ -120,38 +165,46 @@ export const getImageElement = (url: string, caption?: string) => `<figure class
  * @returns string
  */
 export const getContent = (article: Article) => {
-
   // get the images from the bodytext structure
-  const structure : Structure[] = JSON.parse(article?.field?.structure_json);
-  const bodyText = structure.find((item: Structure) => item.type === 'bodytext');
-  const images = bodyText?.children?.filter((item) => item.type === 'image');
-  const markups = bodyText?.children?.filter((item) => item.type === 'markup');
+  const structure: Structure[] = JSON.parse(article?.field?.structure_json);
+  const bodyText = structure.find(
+    (item: Structure) => item.type === "bodytext"
+  );
+  const images = bodyText?.children?.filter((item) => item.type === "image");
+  const markups = bodyText?.children?.filter((item) => item.type === "markup");
 
   // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
   const htmlMap = html.childNodes.map((item) => item.toString());
 
   // insert images into the bodytext
-  images?.forEach(image => {
+  images?.forEach((image) => {
     const index = image?.metadata?.bodyTextIndex?.desktop;
-    if (typeof index !== 'number') return;
+    if (typeof index !== "number") return;
     const baseUrl = "https://image.seiska.fi";
-    const imageEl = article?.children?.image?.find(({attribute}) => +attribute?.id === image?.node_id);
+    const imageEl = article?.children?.image?.find(
+      ({ attribute }) => +attribute?.id === image?.node_id
+    );
     const id = imageEl?.attribute?.instanceof_id;
     const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400`;
-    const imageElement = getImageElement(baseImage, imageEl?.field.imageCaption);
+    const imageElement = getImageElement(
+      baseImage,
+      imageEl?.field.imageCaption
+    );
     htmlMap.splice(index, 0, imageElement);
   });
 
   // insert markups into the bodytext
-  markups?.forEach(markup => {
+  markups?.forEach((markup) => {
     const index = markup?.metadata?.bodyTextIndex?.desktop;
-    if (typeof index !== 'number') return;
-    const markupObj =  article?.children?.markup;
-    const markUpEl = Array.isArray(markupObj) ? markupObj.find(({attribute}) => +attribute?.id === markup?.node_id) : markupObj;
+    if (typeof index !== "number") return;
+    const markupObj = article?.children?.markup;
+    const markUpEl = Array.isArray(markupObj)
+      ? markupObj.find(({ attribute }) => +attribute?.id === markup?.node_id)
+      : markupObj;
     if (!markUpEl?.field?.markup) return;
     htmlMap.splice(index, 0, markUpEl?.field?.markup);
   });
 
-  return htmlMap.join('');
-}
+  return htmlMap.join("");
+};
