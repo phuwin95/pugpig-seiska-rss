@@ -91,8 +91,9 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
 
     const content = getContent(article);
     const pubDate = formatDate(+article?.field?.published * 1000);
-    const category = article?.primarytag?.section;
-    const categories = typeof article?.tag?.tag === 'string' ? [article?.tag?.tag] : article?.tag?.tag;
+    const categories = [article?.primarytag?.section];
+    // get all tags like this 
+    // const categories = typeof article?.tag?.tag === 'string' ? [ article?.tag?.tag] : article?.tag?.tag;
     const image = getMainImage(article);
     const author = getAuthor(article);
     const feedItem = {
@@ -108,7 +109,6 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
       custom_elements: [
         { "content:encoded": content },
         { main_image: image },
-        { category },
       ],
     };
     feed.item(feedItem);
