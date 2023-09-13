@@ -92,6 +92,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
     const content = getContent(article);
     const pubDate = formatDate(+article?.field?.published * 1000);
     const category = article?.primarytag?.section;
+    const categories = article?.tag?.tag.map((tag) => tag);
     const image = getMainImage(article);
     const author = getAuthor(article);
     const feedItem = {
@@ -101,10 +102,14 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
       url: "",
       date: "",
       pubDate,
-      category,
+      categories,
       author,
       image,
-      custom_elements: [{ "content:encoded": content }, { main_image: image }],
+      custom_elements: [
+        { "content:encoded": content },
+        { main_image: image },
+        { category },
+      ],
     };
     feed.item(feedItem);
   });
