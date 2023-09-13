@@ -151,7 +151,7 @@ export interface ArticleField {
 
 export interface Tag {
   "@attributes": TagAttributes;
-  tag:           string[];
+  tag:           string[] | string;
 }
 
 export interface TagAttributes {
