@@ -92,7 +92,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
     const content = getContent(article);
     const pubDate = formatDate(+article?.field?.published * 1000);
     const category = article?.primarytag?.section;
-    const categories = article?.tag?.tag;
+    const categories = article?.tag?.tag || [];
     const image = getMainImage(article);
     const author = getAuthor(article);
     const feedItem = {
