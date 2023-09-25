@@ -203,6 +203,20 @@ export interface TentacledField {
   byline?:         string;
 }
 
+export interface ViewportJson {
+  desktop?: {
+    fields: {
+      cropw?: number;
+      croph?: number;
+      x?: number;
+      y?: number;
+      bbRatio?: number;
+      vpWidth?: number;
+      whRatio?: number;
+    }
+  }
+}
+
 export interface Jwplayer {
   "@attributes"?: ArticleHeaderAttributes;
   attribute?:     Attribute;

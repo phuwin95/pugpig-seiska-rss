@@ -43,17 +43,17 @@ export const getDates = () => {
   };
 };
 export const getCropParams = (crop?: {
-  cropw?: string;
-  croph?: string;
-  x?: string;
-  y?: string;
+  cropw?: string | number;
+  croph?: string | number;
+  x?: string | number;
+  y?: string | number;
 }) => {
   let params = "";
   if (crop) {
-    if (typeof crop.x === "string") params += `x=${crop.x}&`;
-    if (typeof crop.y === "string") params += `y=${crop.y}&`;
-    if (typeof crop.cropw === "string") params += `cropw=${crop.cropw}&`;
-    if (typeof crop.croph === "string") params += `croph=${crop.croph}&`;
+    if (["string", "number"].includes(typeof crop.x)) params += `x=${crop.x}&`;
+    if (["string", "number"].includes(typeof crop.y)) params += `y=${crop.y}&`;
+    if (["string", "number"].includes(typeof crop.cropw)) params += `cropw=${crop.cropw}&`;
+    if (["string", "number"].includes(typeof crop.croph)) params += `croph=${crop.croph}&`;
   }
   return params;
 };
@@ -165,9 +165,10 @@ export const getMainImage = (article: Article) => {
   if (!article?.children?.articleHeader?.children?.image?.field)
     return article?.children?.articleHeader?.children?.jwplayer?.field?.preview;
   if (id) {
-    const cropParams = getCropParams(
-      article?.children?.articleHeader?.children?.image?.field
-    );
+    const cropParamsJson = article?.children?.articleHeader?.children?.image?.field?.viewports_json;
+    const cropParams = cropParamsJson ? getCropParams(
+      JSON.parse(cropParamsJson)?.desktop?.fields
+    ): '';
     const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
     return baseImage;
   }
@@ -215,8 +216,7 @@ export const getContent = (article: Article) => {
       ({ attribute }) => +attribute?.id === image?.node_id
     );
     const id = imageEl?.attribute?.instanceof_id;
-    console.log(article.attribute.id, imageEl?.field);
-    const cropParams = getCropParams(imageEl?.field);
+    const cropParams = imageEl?.field?.viewports_json ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields) : '';
     const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
     const imageElement = getImageElement(
       baseImage,
