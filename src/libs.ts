@@ -234,7 +234,8 @@ export const getContent = (article: Article) => {
       ? markupObj.find(({ attribute }) => +attribute?.id === markup?.node_id)
       : markupObj;
     if (!markUpEl?.field?.markup) return;
-    htmlMap.splice(index, 0, markUpEl?.field?.markup);
+    const content = markUpEl?.field?.markup.replace("\n", "");
+    htmlMap.splice(index, 0, content);
   });
 
   return htmlMap.join("");
