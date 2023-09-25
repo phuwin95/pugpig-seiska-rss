@@ -215,7 +215,8 @@ export const getContent = (article: Article) => {
       ({ attribute }) => +attribute?.id === image?.node_id
     );
     const id = imageEl?.attribute?.instanceof_id;
-    const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400`;
+    const cropParams = getCropParams(imageEl?.field);
+    const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
     const imageElement = getImageElement(
       baseImage,
       imageEl?.field.imageCaption
