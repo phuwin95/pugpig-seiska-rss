@@ -47,7 +47,8 @@ export interface MarkUp {
   "@attributes": AttributeAttributes;
   attribute:     Attribute;
   field: {
-    markup: string;
+    markup?: string;
+    vid?: string;
   }
 }
 
