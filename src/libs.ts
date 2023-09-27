@@ -79,7 +79,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
 
   articles.forEach((
     item,
-    // _index
+    _index
     ) => {
     const article = item?.article;
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
@@ -93,7 +93,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
     descriptions[description] = true;
 
     const content = getContent(article);
-    // if (_index === 0)console.log(content);
+    if (_index === 0)console.log(content);
     const pubDate = formatDate(+article?.field?.published * 1000);
     const categories = [article?.primarytag?.section];
     // get all tags like this 
@@ -193,6 +193,8 @@ export const getImageElement = (
   <figcaption class="pp-media__caption">${caption}</figcaption>
 </figure>`;
 
+export const getJwplayerElement = (id: string) => `<div style="position:relative;overflow:hidden;padding-bottom:56.25%"><iframe src="https://videot.seiska.fi/players/${id}-wRrEuXAq.html" width="100%" height="100%" frameborder="0" scrolling="auto" title="PMMP sai karaokebaarin sekaisin" style="position:absolute;" allowfullscreen></iframe></div>`;
+
 /**
  * formats and inserts elements into the bodytext
  * @param article Article
@@ -201,11 +203,12 @@ export const getImageElement = (
 export const getContent = (article: Article) => {
   // get the images from the bodytext structure
   const structure: Structure[] = JSON.parse(article?.field?.structure_json);
-  const bodyText = structure.find(
+  const bodyTextStructure = structure.find(
     (item: Structure) => item.type === "bodytext"
   );
-  const images = bodyText?.children?.filter((item) => item.type === "image");
-  const markups = bodyText?.children?.filter((item) => item.type === "markup");
+  const images = bodyTextStructure?.children?.filter((item) => item.type === "image");
+  const markups = bodyTextStructure?.children?.filter((item) => item.type === "markup");
+  const jwplayer = bodyTextStructure?.children?.find((item) => item.type === "jwplayer");
 
   // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
@@ -241,6 +244,14 @@ export const getContent = (article: Article) => {
     const content = markUpEl?.field?.markup.replace(/\n/g, "");
     htmlMap.splice(index, 0, content);
   });
+
+  if (jwplayer) {
+    const index = jwplayer?.metadata?.bodyTextIndex?.desktop;
+    const jwplayerObj = article?.children?.jwplayer;
+    if (!jwplayerObj?.field?.vid || typeof index !== 'number') return;
+    const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
+    htmlMap.splice(index, 0, jwplayerElement);
+  }
 
   return htmlMap.join("").replace(
     /href="https:\/\/(.*)\.seiska\.fi/g,
