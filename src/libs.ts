@@ -77,7 +77,10 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
   const titles: Flag = {};
   const descriptions: Flag = {};
 
-  articles.forEach((item,index) => {
+  articles.forEach((
+    item,
+    // _index
+    ) => {
     const article = item?.article;
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
@@ -90,7 +93,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
     descriptions[description] = true;
 
     const content = getContent(article);
-    if (index === 0)console.log(content);
+    // if (_index === 0)console.log(content);
     const pubDate = formatDate(+article?.field?.published * 1000);
     const categories = [article?.primarytag?.section];
     // get all tags like this 
@@ -239,5 +242,8 @@ export const getContent = (article: Article) => {
     htmlMap.splice(index, 0, content);
   });
 
-  return htmlMap.join("");
+  return htmlMap.join("").replace(
+    /href="https:\/\/(.*)\.seiska\.fi/g,
+    'href="https://www.seiska.fi',
+  );
 };
