@@ -195,6 +195,9 @@ export const getImageElement = (
 
 export const getJwplayerElement = (id: string) => `<div style="position:relative;overflow:hidden;padding-bottom:56.25%"><iframe src="https://videot.seiska.fi/players/${id}-wRrEuXAq.html" width="100%" height="100%" frameborder="0" scrolling="auto" title="PMMP sai karaokebaarin sekaisin" style="position:absolute;" allowfullscreen></iframe></div>`;
 
+export const getQuoteBoxElement = (quote: string) => `<div class="quotebox"></div><div class="content"><div class="quoteboxContent"><div class="quote"><h3>${quote}</h3></div></div></div></div>`;
+
+export const getFactboxElement = (title: string, content: string) => `<div class="factbox"><div class="content"><h2>${title}</h2><div class="fact"><p>${content}</p></div></div></div>`;
 /**
  * formats and inserts elements into the bodytext
  * @param article Article
@@ -209,6 +212,8 @@ export const getContent = (article: Article) => {
   const images = bodyTextStructure?.children?.filter((item) => item.type === "image");
   const markups = bodyTextStructure?.children?.filter((item) => item.type === "markup");
   const jwplayer = bodyTextStructure?.children?.find((item) => item.type === "jwplayer");
+  const factbox = bodyTextStructure?.children?.find((item) => item.type === "factbox");
+  const quotebox = bodyTextStructure?.children?.find((item) => item.type === "quotebox");
 
   // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
@@ -251,6 +256,22 @@ export const getContent = (article: Article) => {
     if (!jwplayerObj?.field?.vid || typeof index !== 'number') return;
     const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
     htmlMap.splice(index, 0, jwplayerElement);
+  }
+
+  if (quotebox) {
+    const index = quotebox?.metadata?.bodyTextIndex?.desktop;
+    const quoteboxObj = article?.children?.quotebox;
+    if (!quoteboxObj || typeof quoteboxObj?.field?.quote !== 'string' || typeof index !== 'number') return;
+    const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
+    htmlMap.splice(index, 0, quoteboxElement);
+  }
+
+  if (factbox) {
+    const index = factbox?.metadata?.bodyTextIndex?.desktop;
+    const factboxObj = article?.children?.factbox;
+    if (!factboxObj || typeof index !== 'number' || !factboxObj?.field?.title || !factboxObj?.field?.bodytext) return;
+    const factboxElement = getFactboxElement(factboxObj?.field?.title, factboxObj?.field?.bodytext);
+    htmlMap.splice(index, 0, factboxElement);
   }
 
   return htmlMap.join("").replace(
