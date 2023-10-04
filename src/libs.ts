@@ -43,17 +43,17 @@ export const getDates = () => {
   };
 };
 export const getCropParams = (crop?: {
-  cropw?: string;
-  croph?: string;
-  x?: string;
-  y?: string;
+  cropw?: string | number;
+  croph?: string | number;
+  x?: string | number;
+  y?: string | number;
 }) => {
   let params = "";
   if (crop) {
-    if (typeof crop.x === "string") params += `x=${crop.x}&`;
-    if (typeof crop.y === "string") params += `y=${crop.y}&`;
-    if (typeof crop.cropw === "string") params += `cropw=${crop.cropw}&`;
-    if (typeof crop.croph === "string") params += `croph=${crop.croph}&`;
+    if (["string", "number"].includes(typeof crop.x)) params += `x=${crop.x}&`;
+    if (["string", "number"].includes(typeof crop.y)) params += `y=${crop.y}&`;
+    if (["string", "number"].includes(typeof crop.cropw)) params += `cropw=${crop.cropw}&`;
+    if (["string", "number"].includes(typeof crop.croph)) params += `croph=${crop.croph}&`;
   }
   return params;
 };
@@ -77,7 +77,10 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
   const titles: Flag = {};
   const descriptions: Flag = {};
 
-  articles.forEach((item) => {
+  articles.forEach((
+    item,
+    _index
+    ) => {
     const article = item?.article;
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
@@ -90,6 +93,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
     descriptions[description] = true;
 
     const content = getContent(article);
+    if (_index === 0)console.log(content);
     const pubDate = formatDate(+article?.field?.published * 1000);
     const categories = [article?.primarytag?.section];
     // get all tags like this 
@@ -165,9 +169,10 @@ export const getMainImage = (article: Article) => {
   if (!article?.children?.articleHeader?.children?.image?.field)
     return article?.children?.articleHeader?.children?.jwplayer?.field?.preview;
   if (id) {
-    const cropParams = getCropParams(
-      article?.children?.articleHeader?.children?.image?.field
-    );
+    const cropParamsJson = article?.children?.articleHeader?.children?.image?.field?.viewports_json;
+    const cropParams = cropParamsJson ? getCropParams(
+      JSON.parse(cropParamsJson)?.desktop?.fields
+    ): '';
     const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
     return baseImage;
   }
@@ -188,6 +193,8 @@ export const getImageElement = (
   <figcaption class="pp-media__caption">${caption}</figcaption>
 </figure>`;
 
+export const getJwplayerElement = (id: string) => `<div style="position:relative;overflow:hidden;padding-bottom:56.25%"><iframe src="https://videot.seiska.fi/players/${id}-wRrEuXAq.html" width="100%" height="100%" frameborder="0" scrolling="auto" title="PMMP sai karaokebaarin sekaisin" style="position:absolute;" allowfullscreen></iframe></div>`;
+
 /**
  * formats and inserts elements into the bodytext
  * @param article Article
@@ -196,11 +203,12 @@ export const getImageElement = (
 export const getContent = (article: Article) => {
   // get the images from the bodytext structure
   const structure: Structure[] = JSON.parse(article?.field?.structure_json);
-  const bodyText = structure.find(
+  const bodyTextStructure = structure.find(
     (item: Structure) => item.type === "bodytext"
   );
-  const images = bodyText?.children?.filter((item) => item.type === "image");
-  const markups = bodyText?.children?.filter((item) => item.type === "markup");
+  const images = bodyTextStructure?.children?.filter((item) => item.type === "image");
+  const markups = bodyTextStructure?.children?.filter((item) => item.type === "markup");
+  const jwplayer = bodyTextStructure?.children?.find((item) => item.type === "jwplayer");
 
   // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
@@ -215,7 +223,8 @@ export const getContent = (article: Article) => {
       ({ attribute }) => +attribute?.id === image?.node_id
     );
     const id = imageEl?.attribute?.instanceof_id;
-    const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400`;
+    const cropParams = imageEl?.field?.viewports_json ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields) : '';
+    const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
     const imageElement = getImageElement(
       baseImage,
       imageEl?.field.imageCaption
@@ -231,9 +240,21 @@ export const getContent = (article: Article) => {
     const markUpEl = Array.isArray(markupObj)
       ? markupObj.find(({ attribute }) => +attribute?.id === markup?.node_id)
       : markupObj;
-    if (!markUpEl?.field?.markup) return;
-    htmlMap.splice(index, 0, markUpEl?.field?.markup);
+    if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== 'string' ) return;
+    const content = markUpEl?.field?.markup.replace(/\n/g, "");
+    htmlMap.splice(index, 0, content);
   });
 
-  return htmlMap.join("");
+  if (jwplayer) {
+    const index = jwplayer?.metadata?.bodyTextIndex?.desktop;
+    const jwplayerObj = article?.children?.jwplayer;
+    if (!jwplayerObj?.field?.vid || typeof index !== 'number') return;
+    const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
+    htmlMap.splice(index, 0, jwplayerElement);
+  }
+
+  return htmlMap.join("").replace(
+    /href="https:\/\/(.*)\.seiska\.fi/g,
+    'href="https://www.seiska.fi',
+  );
 };

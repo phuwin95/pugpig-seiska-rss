@@ -47,7 +47,8 @@ export interface MarkUp {
   "@attributes": AttributeAttributes;
   attribute:     Attribute;
   field: {
-    markup: string;
+    markup?: string;
+    vid?: string;
   }
 }
 
@@ -201,6 +202,20 @@ export interface TentacledField {
   imageCaption?:   string;
   caption?:        string;
   byline?:         string;
+}
+
+export interface ViewportJson {
+  desktop?: {
+    fields: {
+      cropw?: number;
+      croph?: number;
+      x?: number;
+      y?: number;
+      bbRatio?: number;
+      vpWidth?: number;
+      whRatio?: number;
+    }
+  }
 }
 
 export interface Jwplayer {
