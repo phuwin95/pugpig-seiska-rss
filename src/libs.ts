@@ -79,7 +79,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
 
   articles.forEach((
     item,
-    _index
+    // _index
     ) => {
     const article = item?.article;
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
@@ -93,7 +93,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
     descriptions[description] = true;
 
     const content = getContent(article);
-    if (_index === 0)console.log(content);
+    // if (_index === 0)console.log(content);
     const pubDate = formatDate(+article?.field?.published * 1000);
     const categories = [article?.primarytag?.section];
     
