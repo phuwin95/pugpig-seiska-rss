@@ -247,7 +247,9 @@ export const getContent = (article: Article) => {
       ? markupObj.find(({ attribute }) => +attribute?.id === markup?.node_id)
       : markupObj;
     if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== 'string' ) return;
-    const content = markUpEl?.field?.markup.replace(/\n/g, "");
+    const content = markUpEl?.field?.markup
+        .replace(/\n/g, "")
+        .replace('src="//www.instagram.com/embed.js"', 'src="https://www.instagram.com/embed.js"') // added protocol to instagram embed
     htmlMap.splice(index, 0, content);
   });
 
