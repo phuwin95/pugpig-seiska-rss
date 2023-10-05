@@ -230,7 +230,7 @@ export const getContent = (article: Article) => {
     );
     const id = imageEl?.attribute?.instanceof_id;
     const cropParams = imageEl?.field?.viewports_json ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields) : '';
-    const baseImage = `${baseUrl}/${id}.jpg?${cropParams}`;
+    const baseImage = `${baseUrl}/${id}.jpg?width=710${cropParams}`;
     const imageElement = getImageElement(
       baseImage,
       imageEl?.field.imageCaption
