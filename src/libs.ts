@@ -218,7 +218,7 @@ export const getContent = (article: Article) => {
 
   // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
-  const htmlMap = html.childNodes.map((item) => item.toString());
+  const htmlMap = html.childNodes.map((item) => item.toString().replace(/\n/g, "")); // remove \n 
 
   // insert images into the bodytext
   images?.forEach((image) => {
