@@ -37,3 +37,14 @@ describe("getMainImage", () => {
     );
   });
 });
+
+describe("getAuthor", () => {
+  it("should return author's first and last names", () => {
+    const firstAndLastNames =
+      article?.children?.byline?.field?.firstname +
+      " " +
+      article?.children?.byline?.field?.lastname;
+    const author = libs.getAuthor(article);
+    expect(author).toEqual(firstAndLastNames);
+  });
+});
