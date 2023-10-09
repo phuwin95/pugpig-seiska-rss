@@ -41,8 +41,22 @@ export interface ArticleChildren {
   jwplayer?:      Jwplayer;
   byline:        BylineClass;
   markup?:        MarkUp[] | MarkUp;
+  quotebox?:      QuoteBox;
+  factbox?:       FactBox;
 }
 
+export interface FactBox {
+  field: {
+    bodytext?: string;
+    title?: string;
+  }
+}
+
+export interface QuoteBox {
+  field: {
+    quote?: string;
+  }
+}
 export interface MarkUp {
   "@attributes": AttributeAttributes;
   attribute:     Attribute;
