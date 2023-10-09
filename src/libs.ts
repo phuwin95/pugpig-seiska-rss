@@ -189,16 +189,14 @@ export const getMainImage = (article: Article) => {
 export const getImageElement = (
   url: string,
   caption?: string
-) => `<figure class="pp-media">
-  <img class="pp-media__image" alt="${caption}" src="${url}">
-  <figcaption class="pp-media__caption">${caption}</figcaption>
-</figure>`;
+) => `<figure class="pp-media"><img class="pp-media__image" alt="${caption}" src="${url}"><figcaption class="pp-media__caption">${caption}</figcaption></figure>`;
 
 export const getJwplayerElement = (id: string) => `<div style="position:relative;overflow:hidden;padding-bottom:56.25%"><iframe src="https://videot.seiska.fi/players/${id}-wRrEuXAq.html" width="100%" height="100%" frameborder="0" scrolling="auto" title="PMMP sai karaokebaarin sekaisin" style="position:absolute;" allowfullscreen></iframe></div>`;
 
 export const getQuoteBoxElement = (quote: string) => `<div class="quotebox"><div class="content"><div class="quoteboxContent"><div class="quote"><h3>${quote}</h3></div></div></div></div>`;
 
 export const getFactboxElement = (title: string, content: string) => `<div class="factbox"><div class="content"><h2>${title}</h2><div class="fact"><p>${content}</p></div></div></div>`;
+
 /**
  * formats and inserts elements into the bodytext
  * @param article Article
