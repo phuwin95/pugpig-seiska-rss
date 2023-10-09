@@ -7,6 +7,6 @@ export default class MyPipelineAppStage extends Stage {
     constructor(scope: Construct, id: string, props?: StageProps) {
       super(scope, id, props);
   
-      new Stack(this, 'AppStack');   
+      new Stack(this, 'PugpigRssAppStack');   
     }
 }
