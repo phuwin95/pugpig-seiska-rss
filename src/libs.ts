@@ -52,13 +52,15 @@ export const getCropParams = (crop?: {
   if (crop) {
     if (["string", "number"].includes(typeof crop.x)) params += `x=${crop.x}&`;
     if (["string", "number"].includes(typeof crop.y)) params += `y=${crop.y}&`;
-    if (["string", "number"].includes(typeof crop.cropw)) params += `cropw=${crop.cropw}&`;
-    if (["string", "number"].includes(typeof crop.croph)) params += `croph=${crop.croph}&`;
+    if (["string", "number"].includes(typeof crop.cropw))
+      params += `cropw=${crop.cropw}&`;
+    if (["string", "number"].includes(typeof crop.croph))
+      params += `croph=${crop.croph}&`;
   }
   return params;
 };
 
-const getAuthor = (article: Article) =>
+export const getAuthor = (article: Article) =>
   article?.children?.byline?.field?.firstname +
   " " +
   article?.children?.byline?.field?.lastname;
@@ -77,47 +79,53 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
   const titles: Flag = {};
   const descriptions: Flag = {};
 
-  articles.forEach((
-    item,
-    // _index
+  articles.forEach(
+    (
+      item
+      // _index
     ) => {
-    const article = item?.article;
-    const guid = uuidv5(article?.attribute.id, uuidv5.URL);
-    const title = article?.field?.title;
-    const description = article?.field?.subtitle;
+      const article = item?.article;
+      console.log("article is: ", article);
+      const guid = uuidv5(article?.attribute.id, uuidv5.URL);
+      const title = article?.field?.title;
+      const description = article?.field?.subtitle;
 
-    // skip if guid, title or description already exists
-    if (guids[guid] || titles[title] || descriptions[description]) return;
-    guids[guid] = true;
-    titles[title] = true;
-    descriptions[description] = true;
+      // skip if guid, title or description already exists
+      if (guids[guid] || titles[title] || descriptions[description]) return;
+      guids[guid] = true;
+      titles[title] = true;
+      descriptions[description] = true;
 
-    const content = getContent(article);
-    // if (_index === 0)console.log(content);
-    const pubDate = formatDate(+article?.field?.published * 1000);
-    const categories = [article?.primarytag?.section];
-    
-    const tags = typeof article?.tag?.tag === 'string' ? [article?.tag?.tag] : article?.tag?.tag;
-    const image = getMainImage(article);
-    const author = getAuthor(article);
-    const feedItem = {
-      guid,
-      title,
-      description,
-      url: "",
-      date: "",
-      pubDate,
-      categories,
-      author,
-      image,
-      custom_elements: [
-        { "content:encoded": content },
-        { main_image: image },
-        ...tags.map((tag) => ({ tag })),
-      ],
-    };
-    feed.item(feedItem);
-  });
+      const content = getContent(article);
+      // if (_index === 0)console.log(content);
+      const pubDate = formatDate(+article?.field?.published * 1000);
+      const categories = [article?.primarytag?.section];
+
+      const tags =
+        typeof article?.tag?.tag === "string"
+          ? [article?.tag?.tag]
+          : article?.tag?.tag;
+      const image = getMainImage(article);
+      const author = getAuthor(article);
+      const feedItem = {
+        guid,
+        title,
+        description,
+        url: "",
+        date: "",
+        pubDate,
+        categories,
+        author,
+        image,
+        custom_elements: [
+          { "content:encoded": content },
+          { main_image: image },
+          ...tags.map((tag) => ({ tag })),
+        ],
+      };
+      feed.item(feedItem);
+    }
+  );
 };
 
 /**
@@ -170,10 +178,11 @@ export const getMainImage = (article: Article) => {
   if (!article?.children?.articleHeader?.children?.image?.field)
     return article?.children?.articleHeader?.children?.jwplayer?.field?.preview;
   if (id) {
-    const cropParamsJson = article?.children?.articleHeader?.children?.image?.field?.viewports_json;
-    const cropParams = cropParamsJson ? getCropParams(
-      JSON.parse(cropParamsJson)?.desktop?.fields
-    ): '';
+    const cropParamsJson =
+      article?.children?.articleHeader?.children?.image?.field?.viewports_json;
+    const cropParams = cropParamsJson
+      ? getCropParams(JSON.parse(cropParamsJson)?.desktop?.fields)
+      : "";
     const baseImage = `${baseUrl}/${id}.jpg?width=710&height=400&${cropParams}`;
     return baseImage;
   }
@@ -186,16 +195,17 @@ export const getMainImage = (article: Article) => {
  * @param caption caption
  * @returns string
  */
-export const getImageElement = (
-  url: string,
-  caption?: string
-) => `<figure class="pp-media"><img class="pp-media__image" alt="${caption}" src="${url}"><figcaption class="pp-media__caption">${caption}</figcaption></figure>`;
+export const getImageElement = (url: string, caption?: string) =>
+  `<figure class="pp-media"><img class="pp-media__image" alt="${caption}" src="${url}"><figcaption class="pp-media__caption">${caption}</figcaption></figure>`;
 
-export const getJwplayerElement = (id: string) => `<div style="position:relative;overflow:hidden;padding-bottom:56.25%"><iframe src="https://videot.seiska.fi/players/${id}-wRrEuXAq.html" width="100%" height="100%" frameborder="0" scrolling="auto" title="PMMP sai karaokebaarin sekaisin" style="position:absolute;" allowfullscreen></iframe></div>`;
+export const getJwplayerElement = (id: string) =>
+  `<div style="position:relative;overflow:hidden;padding-bottom:56.25%"><iframe src="https://videot.seiska.fi/players/${id}-wRrEuXAq.html" width="100%" height="100%" frameborder="0" scrolling="auto" title="PMMP sai karaokebaarin sekaisin" style="position:absolute;" allowfullscreen></iframe></div>`;
 
-export const getQuoteBoxElement = (quote: string) => `<div class="quotebox"><div class="content"><div class="quoteboxContent"><div class="quote"><h3>${quote}</h3></div></div></div></div>`;
+export const getQuoteBoxElement = (quote: string) =>
+  `<div class="quotebox"><div class="content"><div class="quoteboxContent"><div class="quote"><h3>${quote}</h3></div></div></div></div>`;
 
-export const getFactboxElement = (title: string, content: string) => `<div class="factbox"><div class="content"><h2>${title}</h2><div class="fact"><p>${content}</p></div></div></div>`;
+export const getFactboxElement = (title: string, content: string) =>
+  `<div class="factbox"><div class="content"><h2>${title}</h2><div class="fact"><p>${content}</p></div></div></div>`;
 
 /**
  * formats and inserts elements into the bodytext
@@ -208,15 +218,27 @@ export const getContent = (article: Article) => {
   const bodyTextStructure = structure.find(
     (item: Structure) => item.type === "bodytext"
   );
-  const images = bodyTextStructure?.children?.filter((item) => item.type === "image");
-  const markups = bodyTextStructure?.children?.filter((item) => item.type === "markup");
-  const jwplayer = bodyTextStructure?.children?.find((item) => item.type === "jwplayer");
-  const factbox = bodyTextStructure?.children?.find((item) => item.type === "factbox");
-  const quotebox = bodyTextStructure?.children?.find((item) => item.type === "quotebox");
+  const images = bodyTextStructure?.children?.filter(
+    (item) => item.type === "image"
+  );
+  const markups = bodyTextStructure?.children?.filter(
+    (item) => item.type === "markup"
+  );
+  const jwplayer = bodyTextStructure?.children?.find(
+    (item) => item.type === "jwplayer"
+  );
+  const factbox = bodyTextStructure?.children?.find(
+    (item) => item.type === "factbox"
+  );
+  const quotebox = bodyTextStructure?.children?.find(
+    (item) => item.type === "quotebox"
+  );
 
   // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
-  const htmlMap = html.childNodes.map((item) => item.toString().replace(/\n/g, "")); // remove \n 
+  const htmlMap = html.childNodes.map((item) =>
+    item.toString().replace(/\n/g, "")
+  ); // remove \n
 
   // insert images into the bodytext
   images?.forEach((image) => {
@@ -227,7 +249,11 @@ export const getContent = (article: Article) => {
       ({ attribute }) => +attribute?.id === image?.node_id
     );
     const id = imageEl?.attribute?.instanceof_id;
-    const cropParams = imageEl?.field?.viewports_json ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields) : '';
+    const cropParams = imageEl?.field?.viewports_json
+      ? getCropParams(
+          JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields
+        )
+      : "";
     const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
     const imageElement = getImageElement(
       baseImage,
@@ -244,17 +270,21 @@ export const getContent = (article: Article) => {
     const markUpEl = Array.isArray(markupObj)
       ? markupObj.find(({ attribute }) => +attribute?.id === markup?.node_id)
       : markupObj;
-    if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== 'string' ) return;
+    if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== "string")
+      return;
     const content = markUpEl?.field?.markup
-        .replace(/\n/g, "")
-        .replace('src="//www.instagram.com/embed.js"', 'src="https://www.instagram.com/embed.js"') // added protocol to instagram embed
+      .replace(/\n/g, "")
+      .replace(
+        'src="//www.instagram.com/embed.js"',
+        'src="https://www.instagram.com/embed.js"'
+      ); // added protocol to instagram embed
     htmlMap.splice(index, 0, content);
   });
 
   if (jwplayer) {
     const index = jwplayer?.metadata?.bodyTextIndex?.desktop;
     const jwplayerObj = article?.children?.jwplayer;
-    if (!jwplayerObj?.field?.vid || typeof index !== 'number') return;
+    if (!jwplayerObj?.field?.vid || typeof index !== "number") return;
     const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
     htmlMap.splice(index, 0, jwplayerElement);
   }
@@ -262,7 +292,12 @@ export const getContent = (article: Article) => {
   if (quotebox) {
     const index = quotebox?.metadata?.bodyTextIndex?.desktop;
     const quoteboxObj = article?.children?.quotebox;
-    if (!quoteboxObj || typeof quoteboxObj?.field?.quote !== 'string' || typeof index !== 'number') return;
+    if (
+      !quoteboxObj ||
+      typeof quoteboxObj?.field?.quote !== "string" ||
+      typeof index !== "number"
+    )
+      return;
     const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
     htmlMap.splice(index, 0, quoteboxElement);
   }
@@ -270,13 +305,24 @@ export const getContent = (article: Article) => {
   if (factbox) {
     const index = factbox?.metadata?.bodyTextIndex?.desktop;
     const factboxObj = article?.children?.factbox;
-    if (!factboxObj || typeof index !== 'number' || !factboxObj?.field?.title || !factboxObj?.field?.bodytext) return;
-    const factboxElement = getFactboxElement(factboxObj?.field?.title, factboxObj?.field?.bodytext);
+    if (
+      !factboxObj ||
+      typeof index !== "number" ||
+      !factboxObj?.field?.title ||
+      !factboxObj?.field?.bodytext
+    )
+      return;
+    const factboxElement = getFactboxElement(
+      factboxObj?.field?.title,
+      factboxObj?.field?.bodytext
+    );
     htmlMap.splice(index, 0, factboxElement);
   }
 
-  return htmlMap.join("").replace(
-    /href="https:\/\/(.*)\.seiska\.fi/g,
-    'href="https://www.seiska.fi',
-  );
+  return htmlMap
+    .join("")
+    .replace(
+      /href="https:\/\/(.*)\.seiska\.fi/g,
+      'href="https://www.seiska.fi'
+    );
 };
