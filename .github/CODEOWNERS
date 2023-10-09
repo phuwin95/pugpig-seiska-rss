@@ -7,8 +7,3 @@
 # NOTE! This file should not contain any personal emails, only Github Teams
 # Example: *     @allermedia/digital-factory-fi
 *     @allermedia/digital-factory-fi
-
-# Add tech lead team to infrastructure related pull requests
-# Example: cloudformation/*     @allermedia/digital-factory-fi @allermedia/tech-lead-fi
-cloudformation/*     <!-- @allermedia/digital-factory-dk / @allermedia/digital-factory-fi / @allermedia/digital-factory-se @allermedia/tech-lead-dk / @allermedia/tech-lead-fi / @allermedia/tech-lead-se -->
-.aws/*     <!-- @allermedia/digital-factory-dk / @allermedia/digital-factory-fi / @allermedia/digital-factory-se @allermedia/tech-lead-dk / @allermedia/tech-lead-fi / @allermedia/tech-lead-se -->
