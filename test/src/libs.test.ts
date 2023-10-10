@@ -49,12 +49,23 @@ describe("getAuthor", () => {
   });
 });
 
+describe("getQuoteBoxElement", () => {
+  it("should return quotebox element", () => {
+    const quoteboxObj = article?.children?.quotebox;
+    const quote = quoteboxObj?.field?.quote;
+    const quoteboxElement = libs.getQuoteBoxElement(quote);
+    expect(quoteboxElement).toEqual(
+      `<div class="quotebox"><div class="content"><div class="quoteboxContent"><div class="quote"><h3>${quote}</h3></div></div></div></div>`
+    );
+  });
+});
+
 describe("formatDate", () => {
   it("should return correct date", () => {
-    const date = libs.formatDate(1696859027*1000);
+    const date = libs.formatDate(1696859027 * 1000);
     const expected = "Mon, 09 Oct 2023 16:43:47 +0300";
     expect(date).toEqual(expected);
-  })
+  });
 });
 
 describe("isNumber", () => {
@@ -69,5 +80,5 @@ describe("isNumber", () => {
     expect(libs.isNumber("a1")).toBeFalsy();
     expect(libs.isNumber(undefined)).toBeFalsy();
     expect(libs.isNumber({})).toBeFalsy();
-  })
+  });
 });
