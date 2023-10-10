@@ -136,7 +136,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
 export const formatDate = (date: string | number) => {
   // Tue, 03 May 2022 20:45:46 +0000
   const dateObj = new Date(date);
-  const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const months = [
     "Jan",
     "Feb",
