@@ -52,7 +52,7 @@ describe("getAuthor", () => {
 describe("formatDate", () => {
   it("should return correct date", () => {
     const date = libs.formatDate(1696859027*1000);
-    const expected = "Mon, 09 Oct 2023 16:43:47 +0300";
+    const expected = "Mon, 09 Oct 2023 13:43:47 +0000";
     expect(date).toEqual(expected);
   })
 });

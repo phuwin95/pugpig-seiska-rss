@@ -131,7 +131,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
 
 /**
  * formats date into rss feed pubDate in the format: Tue, 03 May 2022 20:45:46 +0300
- * @param date string | number
+ * @param date string | number ms since epoch
  * @returns formatted date into rss feed pubDate in the format: Tue, 03 May 2022 20:45:46 +0300
  */
 export const formatDate = (date: string | number) => {
@@ -163,8 +163,11 @@ export const formatDate = (date: string | number) => {
   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
   const seconds = dateObj.getSeconds();
   const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-  const timezone = "+0300";
-  return `${weekday}, ${formattedDay} ${month} ${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${timezone}`;
+  const timezoneOffset = dateObj.getTimezoneOffset();
+  const timezone = -1 * timezoneOffset / 60;
+  const tz = timezone < 10 ? `0${timezone}00` : `${timezone}00`;
+  const timezoneSign = timezone < 0 ? "-" : "+";
+  return `${weekday}, ${formattedDay} ${month} ${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${timezoneSign}${tz}`;
 };
 
 /**
