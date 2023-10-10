@@ -9,7 +9,7 @@ export class PipelineStack extends cdk.Stack {
 
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
-      pipelineName: 'MyPipeline',
+      pipelineName: 'PugpigRssPipeline',
       synth: new ShellStep('Synth', {
         input: CodePipelineSource.gitHub('allermedia/fi-seiska-services', 'main', {
           authentication: cdk.SecretValue.secretsManager('github-access-token'),
