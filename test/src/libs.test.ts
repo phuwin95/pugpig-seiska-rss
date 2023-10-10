@@ -72,6 +72,19 @@ describe("getFactboxElement", () => {
   });
 });
 
+describe("getJwplayerElement", () => {
+  it("should return JW player element", () => {
+    // const index = jwplayer?.metadata?.bodyTextIndex?.desktop;
+    const jwplayerObj = article?.children?.jwplayer;
+    // if (!jwplayerObj?.field?.vid || typeof index !== "number") return;
+    const id = jwplayerObj?.field?.vid;
+    const jwplayerElement = libs.getJwplayerElement(id);
+    expect(jwplayerElement).toEqual(
+      `<div style="position:relative;overflow:hidden;padding-bottom:56.25%"><iframe src="https://videot.seiska.fi/players/${id}-wRrEuXAq.html" width="100%" height="100%" frameborder="0" scrolling="auto" title="PMMP sai karaokebaarin sekaisin" style="position:absolute;" allowfullscreen></iframe></div>`
+    );
+  });
+});
+
 describe("formatDate", () => {
   it("should return correct date", () => {
     const date = libs.formatDate(1696859027 * 1000);
