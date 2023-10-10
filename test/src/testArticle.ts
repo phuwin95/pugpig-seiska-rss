@@ -615,5 +615,32 @@ export const article = {
         },
       },
     ],
+    quotebox: {
+      "@attributes": {
+        id: "103310",
+        type: "node",
+      },
+      attribute: {
+        "@attributes": {
+          type: "property",
+          collection: "hashtable",
+        },
+        id: "103310",
+        parent_id: "103301",
+        status: "A",
+        user_id: "1",
+      },
+      mainterm: {},
+      term: {},
+      field: {
+        "@attributes": {
+          type: "property",
+          collection: "hashtable",
+        },
+        quote: "Hello from quotebox!",
+        author: "Author",
+        viewports_json: "[]",
+      },
+    },
   },
 };
