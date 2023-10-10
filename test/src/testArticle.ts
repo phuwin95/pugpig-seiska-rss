@@ -642,5 +642,32 @@ export const article = {
         viewports_json: "[]",
       },
     },
+    factbox: {
+      "@attributes": {
+        id: "129083",
+        type: "node",
+      },
+      attribute: {
+        "@attributes": {
+          type: "property",
+          collection: "hashtable",
+        },
+        id: "129083",
+        parent_id: "128933",
+        status: "A",
+        user_id: "17",
+      },
+      mainterm: {},
+      term: {},
+      field: {
+        "@attributes": {
+          type: "property",
+          collection: "hashtable",
+        },
+        bodytext: "<p>Hello from factbox!</p>",
+        viewports_json: "[]",
+        title: "Factbox",
+      },
+    },
   },
 };
