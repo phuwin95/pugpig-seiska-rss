@@ -56,3 +56,18 @@ describe("formatDate", () => {
     expect(date).toEqual(expected);
   })
 });
+
+describe("isNumber", () => {
+  it("should return true if value is number", () => {
+    expect(libs.isNumber(1)).toBeTruthy();
+    expect(libs.isNumber(1.1)).toBeTruthy();
+    expect(libs.isNumber("1")).toBeTruthy();
+  });
+  it("should return false if value is not a number", () => {
+    expect(libs.isNumber("a")).toBeFalsy();
+    expect(libs.isNumber("1a")).toBeFalsy();
+    expect(libs.isNumber("a1")).toBeFalsy();
+    expect(libs.isNumber(undefined)).toBeFalsy();
+    expect(libs.isNumber({})).toBeFalsy();
+  })
+});

@@ -42,6 +42,9 @@ export const getDates = () => {
     end: end.toISOString().slice(0, -5),
   };
 };
+
+export const isNumber = (value: any) => !isNaN(Number(value));
+
 export const getCropParams = (crop?: {
   cropw?: string | number;
   croph?: string | number;
@@ -50,12 +53,10 @@ export const getCropParams = (crop?: {
 }) => {
   let params = "";
   if (crop) {
-    if (["string", "number"].includes(typeof crop.x)) params += `x=${crop.x}&`;
-    if (["string", "number"].includes(typeof crop.y)) params += `y=${crop.y}&`;
-    if (["string", "number"].includes(typeof crop.cropw))
-      params += `cropw=${crop.cropw}&`;
-    if (["string", "number"].includes(typeof crop.croph))
-      params += `croph=${crop.croph}&`;
+      if (isNumber(crop.x)) params += `x=${crop.x}&`;
+      if (isNumber(crop.y)) params += `y=${crop.y}&`;
+      if (isNumber(crop.cropw)) params += `cropw=${crop.cropw}&`;
+      if (isNumber(crop.croph)) params += `croph=${crop.croph}&`;
   }
   return params;
 };
