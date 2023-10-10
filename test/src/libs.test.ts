@@ -79,8 +79,8 @@ describe("getDates", () => {
     .setSystemTime(new Date(1633839600000)); // 2021-10-10
     const dates = libs.getDates();
     expect(dates).toEqual({
-      start: "2021-10-09T21:00:00",
-      end: "2021-10-10T20:59:59",
+      start: "2021-10-10T00:00:00",
+      end: "2021-10-10T23:59:59",
     });
     jest.useRealTimers();
   });
