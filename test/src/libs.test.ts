@@ -60,9 +60,21 @@ describe("getQuoteBoxElement", () => {
   });
 });
 
+describe("getFactboxElement", () => {
+  it("should return factbox element", () => {
+    const factboxObj = article?.children?.factbox;
+    const title = factboxObj?.field?.title;
+    const content = factboxObj?.field?.bodytext;
+    const factboxElement = libs.getFactboxElement(title, content);
+    expect(factboxElement).toEqual(
+      `<div class="factbox"><div class="content"><h2>${title}</h2><div class="fact"><p>${content}</p></div></div></div>`
+    );
+  });
+});
+
 describe("formatDate", () => {
   it("should return correct date", () => {
-    const date = libs.formatDate(1696859027*1000);
+    const date = libs.formatDate(1696859027 * 1000);
     const expected = "Mon, 09 Oct 2023 13:43:47 +0000";
     expect(date).toEqual(expected);
   });
@@ -85,9 +97,7 @@ describe("isNumber", () => {
 
 describe("getDates", () => {
   it("should return dates with start and end", () => {
-    jest
-    .useFakeTimers()
-    .setSystemTime(new Date(1633839600000)); // 2021-10-10
+    jest.useFakeTimers().setSystemTime(new Date(1633839600000)); // 2021-10-10
     const dates = libs.getDates();
     expect(dates).toEqual({
       start: "2021-10-10T00:00:00",
