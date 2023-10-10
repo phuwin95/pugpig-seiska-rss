@@ -1,0 +1,26 @@
+# Prevents pending status when npm-test (required) is skipped
+# Returns passed when the cdk related files are changed
+# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+name: 'Continuous Integration'
+
+on:
+  pull_request:
+    paths:
+      - '.github/**'
+      - 'bin/**'
+      - 'lib/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  npm-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18] #needs to match the version in npm-test.yml
+
+    steps:
+      - run: 'echo "npm-test skipped"'
+      - run: 'exit 0'

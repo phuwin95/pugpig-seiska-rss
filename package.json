@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
+    "test-cdk": "jest --testPathIgnorePatterns=\"src\"",
+    "test-lambda": "jest --testPathIgnorePatterns=\"cdk\"",
     "cdk": "cdk"
   },
   "devDependencies": {
