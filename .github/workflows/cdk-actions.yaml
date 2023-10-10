@@ -16,9 +16,6 @@ jobs:
     strategy:
       matrix:
         node-version: [18] 
-    defaults:
-      run:
-        working-directory: .aws/cdk
 
     steps:
       - uses: actions/checkout@v2
