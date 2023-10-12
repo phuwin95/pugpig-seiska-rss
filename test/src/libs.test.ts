@@ -60,9 +60,34 @@ describe("getQuoteBoxElement", () => {
   });
 });
 
+describe("getFactboxElement", () => {
+  it("should return factbox element", () => {
+    const factboxObj = article?.children?.factbox;
+    const title = factboxObj?.field?.title;
+    const content = factboxObj?.field?.bodytext;
+    const factboxElement = libs.getFactboxElement(title, content);
+    expect(factboxElement).toEqual(
+      `<div class="factbox"><div class="content"><h2>${title}</h2><div class="fact"><p>${content}</p></div></div></div>`
+    );
+  });
+});
+
+describe("getJwplayerElement", () => {
+  it("should return JW player element", () => {
+    // const index = jwplayer?.metadata?.bodyTextIndex?.desktop;
+    const jwplayerObj = article?.children?.jwplayer;
+    // if (!jwplayerObj?.field?.vid || typeof index !== "number") return;
+    const id = jwplayerObj?.field?.vid;
+    const jwplayerElement = libs.getJwplayerElement(id);
+    expect(jwplayerElement).toEqual(
+      `<div style="position:relative;overflow:hidden;padding-bottom:56.25%"><iframe src="https://videot.seiska.fi/players/${id}-wRrEuXAq.html" width="100%" height="100%" frameborder="0" scrolling="auto" title="PMMP sai karaokebaarin sekaisin" style="position:absolute;" allowfullscreen></iframe></div>`
+    );
+  });
+});
+
 describe("formatDate", () => {
   it("should return correct date", () => {
-    const date = libs.formatDate(1696859027*1000);
+    const date = libs.formatDate(1696859027 * 1000);
     const expected = "Mon, 09 Oct 2023 13:43:47 +0000";
     expect(date).toEqual(expected);
   });
@@ -85,9 +110,7 @@ describe("isNumber", () => {
 
 describe("getDates", () => {
   it("should return dates with start and end", () => {
-    jest
-    .useFakeTimers()
-    .setSystemTime(new Date(1633839600000)); // 2021-10-10
+    jest.useFakeTimers().setSystemTime(new Date(1633839600000)); // 2021-10-10
     const dates = libs.getDates();
     expect(dates).toEqual({
       start: "2021-10-10T00:00:00",
