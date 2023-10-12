@@ -1,8 +1,9 @@
 import { parse } from "node-html-parser";
-import { Article, FullArticle, Structure } from "./types/article";
 import { v5 as uuidv5 } from "uuid";
-import RSS from "rss";
+import RSS, { ItemOptions } from "rss";
 import { SecretsManager } from "aws-sdk";
+
+import { Article, FullArticle, Structure } from "./types/article";
 import { KilkayaResponse } from "./types/kilkaya";
 
 export const getAccessToken = async () => {
@@ -99,7 +100,7 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
 
       const content = getContent(article);
       // if (_index === 0)console.log(content);
-      const pubDate = formatDate(+article?.field?.published * 1000);
+      const date = formatDate(+article?.field?.published * 1000);
       const categories = [article?.primarytag?.section];
 
       const tags =
@@ -108,16 +109,15 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
           : article?.tag?.tag;
       const image = getMainImage(article);
       const author = getAuthor(article);
-      const feedItem = {
+
+      const feedItem: ItemOptions = {
         guid,
         title,
         description,
         url: "",
-        date: "",
-        pubDate,
+        date,
         categories,
         author,
-        image,
         custom_elements: [
           { "content:encoded": content },
           { main_image: image },
