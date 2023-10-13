@@ -54,10 +54,10 @@ export const getCropParams = (crop?: {
 }) => {
   let params = "";
   if (crop) {
-      if (isNumber(crop.x)) params += `x=${crop.x}&`;
-      if (isNumber(crop.y)) params += `y=${crop.y}&`;
-      if (isNumber(crop.cropw)) params += `cropw=${crop.cropw}&`;
-      if (isNumber(crop.croph)) params += `croph=${crop.croph}&`;
+    if (isNumber(crop.x)) params += `x=${crop.x}&`;
+    if (isNumber(crop.y)) params += `y=${crop.y}&`;
+    if (isNumber(crop.cropw)) params += `cropw=${crop.cropw}&`;
+    if (isNumber(crop.croph)) params += `croph=${crop.croph}&`;
   }
   return params;
 };
@@ -83,7 +83,6 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
 
   articles.forEach((item) => {
     const article = item?.article;
-      console.log("article is: ", article);
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
     const description = article?.field?.subtitle;
@@ -104,7 +103,6 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
         : article?.tag?.tag;
     const image = getMainImage(article);
     const author = getAuthor(article);
-
     const feedItem: ItemOptions = {
       guid,
       title,
@@ -187,6 +185,8 @@ export const getMainImage = (article: Article) => {
   return;
 };
 
+const getCorrectIndex = (index: number, htmlMap: string[], htmlMapCopy: string []) => htmlMap.indexOf(htmlMapCopy[index - 1]) + 1 
+
 /**
  * return a string of an html element formatted for pugpig image element
  * @param url url
@@ -239,6 +239,8 @@ export const getContent = (article: Article) => {
     .replace('href="https://labrador.seiska.fi/', 'href="https://www.seiska.fi/') // replace labrador links with seiska links
   ); 
 
+  const htmlMapCopy = [...htmlMap];
+
   // insert images into the bodytext
   images?.forEach((image) => {
     const index = image?.metadata?.bodyTextIndex?.desktop;
@@ -258,7 +260,8 @@ export const getContent = (article: Article) => {
       baseImage,
       imageEl?.field.imageCaption
     );
-    htmlMap.splice(index, 0, imageElement);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, imageElement);
   });
 
   // insert markups into the bodytext
@@ -277,7 +280,8 @@ export const getContent = (article: Article) => {
         'src="//www.instagram.com/embed.js"',
         'src="https://www.instagram.com/embed.js"'
       ); // added protocol to instagram embed
-    htmlMap.splice(index, 0, content);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, content);
   });
 
   if (jwplayer) {
@@ -285,7 +289,8 @@ export const getContent = (article: Article) => {
     const jwplayerObj = article?.children?.jwplayer;
     if (!jwplayerObj?.field?.vid || typeof index !== "number") return;
     const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
-    htmlMap.splice(index, 0, jwplayerElement);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, jwplayerElement);
   }
 
   if (quotebox) {
@@ -298,7 +303,8 @@ export const getContent = (article: Article) => {
     )
       return;
     const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
-    htmlMap.splice(index, 0, quoteboxElement);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, quoteboxElement);
   }
 
   if (factbox) {
@@ -315,7 +321,8 @@ export const getContent = (article: Article) => {
       factboxObj?.field?.title,
       factboxObj?.field?.bodytext
     );
-    htmlMap.splice(index, 0, factboxElement);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, factboxElement);
   }
   return htmlMap.join("");
 };
