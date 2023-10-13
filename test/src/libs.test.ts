@@ -1,4 +1,3 @@
-import { ar } from "date-fns/locale";
 import * as libs from "../../src/libs";
 import { article } from "./testArticle";
 
@@ -119,6 +118,14 @@ describe("getDates", () => {
     });
     jest.useRealTimers();
   });
+});
+
+describe("getTags", () => {
+  it("should return tags", () => {
+    const tags = libs.getTags(article);
+    expect(tags).toMatchObject(article.tag.tag.map((tag) => ({ tag })));
+    expect(tags.length).toBe(article.tag.tag.length);
+  });      
 });
 
 describe("createFeedItemsFromArticles", () => {
