@@ -81,52 +81,46 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
   const titles: Flag = {};
   const descriptions: Flag = {};
 
-  articles.forEach(
-    (
-      item
-      // _index
-    ) => {
-      const article = item?.article;
+  articles.forEach((item) => {
+    const article = item?.article;
       console.log("article is: ", article);
-      const guid = uuidv5(article?.attribute.id, uuidv5.URL);
-      const title = article?.field?.title;
-      const description = article?.field?.subtitle;
+    const guid = uuidv5(article?.attribute.id, uuidv5.URL);
+    const title = article?.field?.title;
+    const description = article?.field?.subtitle;
 
-      // skip if guid, title or description already exists
-      if (guids[guid] || titles[title] || descriptions[description]) return;
-      guids[guid] = true;
-      titles[title] = true;
-      descriptions[description] = true;
+    // skip if guid, title or description already exists
+    if (guids[guid] || titles[title] || descriptions[description]) return;
+    guids[guid] = true;
+    titles[title] = true;
+    descriptions[description] = true;
 
-      const content = getContent(article);
-      // if (_index === 0)console.log(content);
-      const date = formatDate(+article?.field?.published * 1000);
-      const categories = [article?.primarytag?.section];
+    const content = getContent(article);
+    const date = formatDate(+article?.field?.published * 1000);
+    const categories = [article?.primarytag?.section];
 
-      const tags =
-        typeof article?.tag?.tag === "string"
-          ? [article?.tag?.tag]
-          : article?.tag?.tag;
-      const image = getMainImage(article);
-      const author = getAuthor(article);
+    const tags =
+      typeof article?.tag?.tag === "string"
+        ? [article?.tag?.tag]
+        : article?.tag?.tag;
+    const image = getMainImage(article);
+    const author = getAuthor(article);
 
-      const feedItem: ItemOptions = {
-        guid,
-        title,
-        description,
-        url: "",
-        date,
-        categories,
-        author,
-        custom_elements: [
-          { "content:encoded": content },
-          { main_image: image },
-          ...tags.map((tag) => ({ tag })),
-        ],
-      };
-      feed.item(feedItem);
-    }
-  );
+    const feedItem: ItemOptions = {
+      guid,
+      title,
+      description,
+      url: "",
+      date,
+      categories,
+      author,
+      custom_elements: [
+        { "content:encoded": content },
+        { main_image: image },
+        ...tags.map((tag) => ({ tag })),
+      ],
+    };
+    feed.item(feedItem);
+  });
 };
 
 /**
@@ -164,7 +158,7 @@ export const formatDate = (date: string | number) => {
   const seconds = dateObj.getSeconds();
   const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
   const timezoneOffset = dateObj.getTimezoneOffset();
-  const timezone = -1 * timezoneOffset / 60;
+  const timezone = (-1 * timezoneOffset) / 60;
   const tz = timezone < 10 ? `0${timezone}00` : `${timezone}00`;
   const timezoneSign = timezone < 0 ? "-" : "+";
   return `${weekday}, ${formattedDay} ${month} ${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${timezoneSign}${tz}`;
