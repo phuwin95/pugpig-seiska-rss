@@ -185,7 +185,33 @@ export const getMainImage = (article: Article) => {
   return;
 };
 
-const getCorrectIndex = (index: number, htmlMap: string[], htmlMapCopy: string []) => htmlMap.indexOf(htmlMapCopy[index - 1]) + 1 
+/**
+ * This function is used to get the correct index of the element in the bodytext. This is because the htmlMap indices of elements can be shifted 
+ * if an element is inserted before the current element.
+ * 
+ * original  `[p1, p2, p3, p4, p5]`
+ * 
+ * Insert 1 at index 1, 3 at index 3, the correct position is `[p1, 1, p2, p3, 3, p4, p5]` (according to Labrador)
+ * 
+ * After inserting 1 into index 1, the htmlMap is `[p1, 1, p2, p3, p4, p5]` (correct)
+ * 
+ * After inserting b into index 3, the htmlMap is `[p1, 1, p2, b, p3, p4, p5]` (incorrect)
+ * 
+ * The correct index of b is 4, not 3. -> `[p1, 1, p2, b, p3, 3, p4, p5]` (correct)
+ * 
+ * The function finds the element that is before the insterted element in the modified htmlMap accordingly to the index of the element in the original htmlMap,
+ * then returns the index of that element in the modified htmlMap + 1, which is the correct index of the element in the modified htmlMap.
+ * @param index index of the element in the bodytext
+ * @param htmlMap modified htmlMap
+ * @param originalHtmlMap copy of the original htmlMap
+ * @returns the correct index of the element in the current body text
+ */
+const getCorrectIndex = (index: number, modifiedHtmlMap: string[], originalHtmlMap: string []) => { 
+  const elementBefore = originalHtmlMap[index - 1];
+  const indexOfElementBefore = modifiedHtmlMap.indexOf(elementBefore);
+  const correctIndex = indexOfElementBefore + 1;
+  return correctIndex;
+};
 
 /**
  * return a string of an html element formatted for pugpig image element
