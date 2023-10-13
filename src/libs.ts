@@ -235,8 +235,9 @@ export const getContent = (article: Article) => {
   // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
   const htmlMap = html.childNodes.map((item) =>
-    item.toString().replace(/\n/g, "")
-  ); // remove \n
+    item.toString().replace(/\n/g, "") // remove \
+    .replace('href="https://labrador.seiska.fi/', 'href="https://www.seiska.fi/') // replace labrador links with seiska links
+  ); 
 
   // insert images into the bodytext
   images?.forEach((image) => {
@@ -316,11 +317,5 @@ export const getContent = (article: Article) => {
     );
     htmlMap.splice(index, 0, factboxElement);
   }
-
-  return htmlMap
-    .join("")
-    .replace(
-      /href="https:\/\/(.*)\.seiska\.fi/g,
-      'href="https://www.seiska.fi'
-    );
+  return htmlMap.join("");
 };
