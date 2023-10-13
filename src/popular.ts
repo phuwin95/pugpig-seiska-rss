@@ -1,11 +1,13 @@
 import { APIGatewayProxyResultV2 } from "aws-lambda";
 import RSS from "rss";
+
 import {
-  addItems,
+  createFeedItemsFromArticles,
   fetchKilkayaWithRetry,
   getAccessToken,
   getDates,
 } from "./libs";
+
 export async function main(): Promise<APIGatewayProxyResultV2> {
   const accessToken = await getAccessToken();
 
@@ -48,30 +50,28 @@ export async function main(): Promise<APIGatewayProxyResultV2> {
     return acc;
   }, []);
 
-  const feed = new RSS({
-    title: "Seiska",
-    description: "Seiska RSS popular",
-    ttl: 60, // in minutes,
-    feed_url: "https://www.seiska.fi/rss",
-    site_url: "https://www.seiska.fi",
-    custom_namespaces: {
-      content: "http://purl.org/rss/1.0/modules/content/",
-      rss: "http://purl.org/rss/1.0/",
-    },
-  });
+  const feedItems = createFeedItemsFromArticles(sortedArticles);
 
-  addItems(feed, sortedArticles);
+  const feed = new RSS(
+    {
+      title: "Seiska",
+      description: "Seiska RSS popular",
+      ttl: 60, // in minutes,
+      feed_url: "https://www.seiska.fi/rss",
+      site_url: "https://www.seiska.fi",
+      custom_namespaces: {
+        content: "http://purl.org/rss/1.0/modules/content/",
+        rss: "http://purl.org/rss/1.0/",
+      },
+    },
+    feedItems
+  );
 
   return {
     body: feed.xml({ indent: true }),
     headers: {
       "Content-Type": "application/rss+xml",
     },
-    statusCode: 200,
-  };
-
-  return {
-    body: JSON.stringify({ message: "Successful lambda invocation popular" }),
     statusCode: 200,
   };
 }
