@@ -1,3 +1,4 @@
+import { ar } from "date-fns/locale";
 import * as libs from "../../src/libs";
 import { article } from "./testArticle";
 
@@ -117,5 +118,42 @@ describe("getDates", () => {
       end: "2021-10-10T23:59:59",
     });
     jest.useRealTimers();
+  });
+});
+
+describe("createFeedItemsFromArticles", () => {
+  it("should return list of feed items", () => {
+    const feedItems = libs.createFeedItemsFromArticles([{ article }]);
+    expect(feedItems).toBeInstanceOf(Array);
+  });
+
+  it("should return correct no. of feed items when articles are duplicated", () => {
+    const feedItems = libs.createFeedItemsFromArticles([
+      { article },
+      { article },
+      { article },
+    ]);
+    expect(feedItems.length).toEqual(1);
+  });
+
+  it("should return correct object (feed item) structure", () => {
+    const feedItems = libs.createFeedItemsFromArticles([{ article }]);
+    expect(feedItems[0]).toMatchObject({
+      guid: expect.any(String),
+      title: article.field.title,
+      description: article.field.subtitle,
+      date: libs.formatDate(+article.field.published * 1000),
+      categories: [article.primarytag.section],
+      author: libs.getAuthor(article),
+      custom_elements: [
+        {
+          "content:encoded": libs.getContent(article),
+        },
+        {
+          main_image: libs.getMainImage(article),
+        },
+        ...libs.getTags(article),
+      ],
+    });
   });
 });
