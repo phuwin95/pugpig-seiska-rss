@@ -54,10 +54,10 @@ export const getCropParams = (crop?: {
 }) => {
   let params = "";
   if (crop) {
-      if (isNumber(crop.x)) params += `x=${crop.x}&`;
-      if (isNumber(crop.y)) params += `y=${crop.y}&`;
-      if (isNumber(crop.cropw)) params += `cropw=${crop.cropw}&`;
-      if (isNumber(crop.croph)) params += `croph=${crop.croph}&`;
+    if (isNumber(crop.x)) params += `x=${crop.x}&`;
+    if (isNumber(crop.y)) params += `y=${crop.y}&`;
+    if (isNumber(crop.cropw)) params += `cropw=${crop.cropw}&`;
+    if (isNumber(crop.croph)) params += `croph=${crop.croph}&`;
   }
   return params;
 };
@@ -81,52 +81,44 @@ export const addItems = (feed: RSS, articles: FullArticle[]) => {
   const titles: Flag = {};
   const descriptions: Flag = {};
 
-  articles.forEach(
-    (
-      item
-      // _index
-    ) => {
-      const article = item?.article;
-      console.log("article is: ", article);
-      const guid = uuidv5(article?.attribute.id, uuidv5.URL);
-      const title = article?.field?.title;
-      const description = article?.field?.subtitle;
+  articles.forEach((item) => {
+    const article = item?.article;
+    const guid = uuidv5(article?.attribute.id, uuidv5.URL);
+    const title = article?.field?.title;
+    const description = article?.field?.subtitle;
 
-      // skip if guid, title or description already exists
-      if (guids[guid] || titles[title] || descriptions[description]) return;
-      guids[guid] = true;
-      titles[title] = true;
-      descriptions[description] = true;
+    // skip if guid, title or description already exists
+    if (guids[guid] || titles[title] || descriptions[description]) return;
+    guids[guid] = true;
+    titles[title] = true;
+    descriptions[description] = true;
 
-      const content = getContent(article);
-      // if (_index === 0)console.log(content);
-      const date = formatDate(+article?.field?.published * 1000);
-      const categories = [article?.primarytag?.section];
+    const content = getContent(article);
+    const date = formatDate(+article?.field?.published * 1000);
+    const categories = [article?.primarytag?.section];
 
-      const tags =
-        typeof article?.tag?.tag === "string"
-          ? [article?.tag?.tag]
-          : article?.tag?.tag;
-      const image = getMainImage(article);
-      const author = getAuthor(article);
-
-      const feedItem: ItemOptions = {
-        guid,
-        title,
-        description,
-        url: "",
-        date,
-        categories,
-        author,
-        custom_elements: [
-          { "content:encoded": content },
-          { main_image: image },
-          ...tags.map((tag) => ({ tag })),
-        ],
-      };
-      feed.item(feedItem);
-    }
-  );
+    const tags =
+      typeof article?.tag?.tag === "string"
+        ? [article?.tag?.tag]
+        : article?.tag?.tag;
+    const image = getMainImage(article);
+    const author = getAuthor(article);
+    const feedItem: ItemOptions = {
+      guid,
+      title,
+      description,
+      url: "",
+      date,
+      categories,
+      author,
+      custom_elements: [
+        { "content:encoded": content },
+        { main_image: image },
+        ...tags.map((tag) => ({ tag })),
+      ],
+    };
+    feed.item(feedItem);
+  });
 };
 
 /**
@@ -164,7 +156,7 @@ export const formatDate = (date: string | number) => {
   const seconds = dateObj.getSeconds();
   const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
   const timezoneOffset = dateObj.getTimezoneOffset();
-  const timezone = -1 * timezoneOffset / 60;
+  const timezone = (-1 * timezoneOffset) / 60;
   const tz = timezone < 10 ? `0${timezone}00` : `${timezone}00`;
   const timezoneSign = timezone < 0 ? "-" : "+";
   return `${weekday}, ${formattedDay} ${month} ${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${timezoneSign}${tz}`;
@@ -191,6 +183,34 @@ export const getMainImage = (article: Article) => {
     return baseImage;
   }
   return;
+};
+
+/**
+ * This function is used to get the correct index of the element in the bodytext. This is because the htmlMap indices of elements can be shifted 
+ * if an element is inserted before the current element.
+ * 
+ * original  `[p1, p2, p3, p4, p5]`
+ * 
+ * Insert 1 at index 1, 3 at index 3, the correct position is `[p1, 1, p2, p3, 3, p4, p5]` (according to Labrador)
+ * 
+ * After inserting 1 into index 1, the htmlMap is `[p1, 1, p2, p3, p4, p5]` (correct)
+ * 
+ * After inserting b into index 3, the htmlMap is `[p1, 1, p2, b, p3, p4, p5]` (incorrect)
+ * 
+ * The correct index of b is 4, not 3. -> `[p1, 1, p2, b, p3, 3, p4, p5]` (correct)
+ * 
+ * The function finds the element that is before the insterted element in the modified htmlMap accordingly to the index of the element in the original htmlMap,
+ * then returns the index of that element in the modified htmlMap + 1, which is the correct index of the element in the modified htmlMap.
+ * @param index index of the element in the bodytext
+ * @param htmlMap modified htmlMap
+ * @param originalHtmlMap copy of the original htmlMap
+ * @returns the correct index of the element in the current body text
+ */
+const getCorrectIndex = (index: number, modifiedHtmlMap: string[], originalHtmlMap: string []) => { 
+  const elementBefore = originalHtmlMap[index - 1];
+  const indexOfElementBefore = modifiedHtmlMap.indexOf(elementBefore);
+  const correctIndex = indexOfElementBefore + 1;
+  return correctIndex;
 };
 
 /**
@@ -241,8 +261,11 @@ export const getContent = (article: Article) => {
   // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
   const htmlMap = html.childNodes.map((item) =>
-    item.toString().replace(/\n/g, "")
-  ); // remove \n
+    item.toString().replace(/\n/g, "") // remove \
+    .replace('href="https://labrador.seiska.fi/', 'href="https://www.seiska.fi/') // replace labrador links with seiska links
+  ); 
+
+  const htmlMapCopy = [...htmlMap];
 
   // insert images into the bodytext
   images?.forEach((image) => {
@@ -263,7 +286,8 @@ export const getContent = (article: Article) => {
       baseImage,
       imageEl?.field.imageCaption
     );
-    htmlMap.splice(index, 0, imageElement);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, imageElement);
   });
 
   // insert markups into the bodytext
@@ -282,7 +306,8 @@ export const getContent = (article: Article) => {
         'src="//www.instagram.com/embed.js"',
         'src="https://www.instagram.com/embed.js"'
       ); // added protocol to instagram embed
-    htmlMap.splice(index, 0, content);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, content);
   });
 
   if (jwplayer) {
@@ -290,7 +315,8 @@ export const getContent = (article: Article) => {
     const jwplayerObj = article?.children?.jwplayer;
     if (!jwplayerObj?.field?.vid || typeof index !== "number") return;
     const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
-    htmlMap.splice(index, 0, jwplayerElement);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, jwplayerElement);
   }
 
   if (quotebox) {
@@ -303,7 +329,8 @@ export const getContent = (article: Article) => {
     )
       return;
     const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
-    htmlMap.splice(index, 0, quoteboxElement);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, quoteboxElement);
   }
 
   if (factbox) {
@@ -320,13 +347,8 @@ export const getContent = (article: Article) => {
       factboxObj?.field?.title,
       factboxObj?.field?.bodytext
     );
-    htmlMap.splice(index, 0, factboxElement);
+    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    htmlMap.splice(correctIndex, 0, factboxElement);
   }
-
-  return htmlMap
-    .join("")
-    .replace(
-      /href="https:\/\/(.*)\.seiska\.fi/g,
-      'href="https://www.seiska.fi'
-    );
+  return htmlMap.join("");
 };
