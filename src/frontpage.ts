@@ -1,6 +1,7 @@
 import { APIGatewayProxyResultV2 } from 'aws-lambda';
 import RSS from 'rss';
-import { addItems } from './libs';
+
+import { createFeedItemsFromArticles } from "./libs";
 
 export async function main(): Promise<APIGatewayProxyResultV2> {
   // fetch frontpage from labrador
@@ -27,25 +28,27 @@ export async function main(): Promise<APIGatewayProxyResultV2> {
     return acc;
   }, []);
 
-  const feed = new RSS({
-    title: 'Seiska',
-    description: 'Seiska RSS frontpage',
-    ttl: 15, // in minutes,
-    feed_url: 'https://www.seiska.fi/rss',
-    site_url: 'https://www.seiska.fi',
-    custom_namespaces: {
-      'content': 'http://purl.org/rss/1.0/modules/content/',
-      'rss': 'http://purl.org/rss/1.0/',
-    }
-  });
-  
-  addItems(feed, sortedArticles);
+  const feedItems = createFeedItemsFromArticles(sortedArticles);
 
+  const feed = new RSS(
+    {
+      title: "Seiska",
+      description: "Seiska RSS frontpage",
+      ttl: 15, // in minutes,
+      feed_url: "https://www.seiska.fi/rss",
+      site_url: "https://www.seiska.fi",
+      custom_namespaces: {
+        content: "http://purl.org/rss/1.0/modules/content/",
+        rss: "http://purl.org/rss/1.0/",
+      },
+    },
+    feedItems
+  );
 
   return {
-    body: feed.xml({indent: true}),
+    body: feed.xml({ indent: true }),
     headers: {
-      'Content-Type': 'application/rss+xml',
+      "Content-Type": "application/rss+xml",
     },
     statusCode: 200,
   };
