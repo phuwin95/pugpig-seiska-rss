@@ -3,16 +3,14 @@ import { v5 as uuidv5 } from "uuid";
 import { ItemOptions } from "rss";
 import { SecretsManager } from "aws-sdk";
 
-import { Article, FullArticle, Structure } from "./types/article";
+import { Article, FullArticle, Structure, StructureChild } from "./types/article";
 import { KilkayaResponse } from "./types/kilkaya";
 
 export const getAccessToken = async () => {
   const secretManager = new SecretsManager({
     region: "eu-west-1",
   });
-  const secret = await secretManager
-    .getSecretValue({ SecretId: "kilkaya-access-token" })
-    .promise();
+  const secret = await secretManager.getSecretValue({ SecretId: "kilkaya-access-token" }).promise();
   const accessToken = secret.SecretString;
   return accessToken;
 };
@@ -63,15 +61,10 @@ export const getCropParams = (crop?: {
 };
 
 export const getAuthor = (article: Article) =>
-  article?.children?.byline?.field?.firstname +
-  " " +
-  article?.children?.byline?.field?.lastname;
+  article?.children?.byline?.field?.firstname + " " + article?.children?.byline?.field?.lastname;
 
 export const getTags = (article: Article) => {
-  const tags =
-    typeof article?.tag?.tag === "string"
-      ? [article?.tag?.tag]
-      : article?.tag?.tag;
+  const tags = typeof article?.tag?.tag === "string" ? [article?.tag?.tag] : article?.tag?.tag;
 
   return tags.map((tag) => ({ tag }));
 };
@@ -87,18 +80,13 @@ export const createFeedItemsFromArticles = (articles: FullArticle[]) => {
   return articles.reduce((acc, curr) => {
     const article = curr?.article;
 
-    console.log("article is: ", article);
+    // console.log("article is: ", article);
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
     const description = article?.field?.subtitle;
 
     // skip if guid, title or description already exists
-    if (
-      uniqueItemsMap[guid] ||
-      uniqueItemsMap[title] ||
-      uniqueItemsMap[description]
-    )
-      return acc;
+    if (uniqueItemsMap[guid] || uniqueItemsMap[title] || uniqueItemsMap[description]) return acc;
 
     uniqueItemsMap[guid] = true;
     uniqueItemsMap[title] = true;
@@ -118,11 +106,7 @@ export const createFeedItemsFromArticles = (articles: FullArticle[]) => {
       date,
       categories,
       author,
-      custom_elements: [
-        { "content:encoded": content },
-        { main_image: image },
-        ...getTags(article),
-      ],
+      custom_elements: [{ "content:encoded": content }, { main_image: image }, ...getTags(article)],
     };
 
     acc.push(feedItem);
@@ -179,13 +163,11 @@ export const formatDate = (date: string | number) => {
  */
 export const getMainImage = (article: Article) => {
   const baseUrl = "https://image.seiska.fi";
-  const id =
-    article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
+  const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
   if (!article?.children?.articleHeader?.children?.image?.field)
     return article?.children?.articleHeader?.children?.jwplayer?.field?.preview;
   if (id) {
-    const cropParamsJson =
-      article?.children?.articleHeader?.children?.image?.field?.viewports_json;
+    const cropParamsJson = article?.children?.articleHeader?.children?.image?.field?.viewports_json;
     const cropParams = cropParamsJson
       ? getCropParams(JSON.parse(cropParamsJson)?.desktop?.fields)
       : "";
@@ -216,11 +198,7 @@ export const getMainImage = (article: Article) => {
  * @param originalHtmlMap copy of the original htmlMap
  * @returns the correct index of the element in the current body text
  */
-const getCorrectIndex = (
-  index: number,
-  modifiedHtmlMap: string[],
-  originalHtmlMap: string[]
-) => {
+const getCorrectIndex = (index: number, modifiedHtmlMap: string[], originalHtmlMap: string[]) => {
   const elementBefore = originalHtmlMap[index - 1];
   const indexOfElementBefore = modifiedHtmlMap.indexOf(elementBefore);
   const correctIndex = indexOfElementBefore + 1;
@@ -245,6 +223,14 @@ export const getQuoteBoxElement = (quote: string) =>
 export const getFactboxElement = (title: string, content: string) =>
   `<div class="factbox"><div class="content"><h2>${title}</h2><div class="fact"><p>${content}</p></div></div></div>`;
 
+type BodyTextStructure = {
+  images: StructureChild[];
+  markups: StructureChild[];
+  jwplayer?: StructureChild;
+  factbox?: StructureChild;
+  quotebox?: StructureChild;
+};
+
 /**
  * formats and inserts elements into the bodytext
  * @param article Article
@@ -253,24 +239,7 @@ export const getFactboxElement = (title: string, content: string) =>
 export const getContent = (article: Article) => {
   // get the images from the bodytext structure
   const structure: Structure[] = JSON.parse(article?.field?.structure_json);
-  const bodyTextStructure = structure.find(
-    (item: Structure) => item.type === "bodytext"
-  );
-  const images = bodyTextStructure?.children?.filter(
-    (item) => item.type === "image"
-  );
-  const markups = bodyTextStructure?.children?.filter(
-    (item) => item.type === "markup"
-  );
-  const jwplayer = bodyTextStructure?.children?.find(
-    (item) => item.type === "jwplayer"
-  );
-  const factbox = bodyTextStructure?.children?.find(
-    (item) => item.type === "factbox"
-  );
-  const quotebox = bodyTextStructure?.children?.find(
-    (item) => item.type === "quotebox"
-  );
+  const bodyTextStructure = structure.find((item: Structure) => item.type === "bodytext");
 
   // get htmlMap to insert elements into the bodytext
   const html = parse(article.field.bodytext);
@@ -279,13 +248,29 @@ export const getContent = (article: Article) => {
       item
         .toString()
         .replace(/\n/g, "") // remove \
-        .replace(
-          'href="https://labrador.seiska.fi/',
-          'href="https://www.seiska.fi/'
-        ) // replace labrador links with seiska links
+        .replace('href="https://labrador.seiska.fi/', 'href="https://www.seiska.fi/') // replace labrador links with seiska links
   );
 
   const htmlMapCopy = [...htmlMap];
+
+  const { images, markups, jwplayer, factbox, quotebox } =
+    bodyTextStructure?.children?.reduce<BodyTextStructure>(
+      (acc, curr) => {
+        if (curr.type === "image") {
+          acc.images.push(curr);
+        } else if (curr.type === "markup") {
+          acc.markups.push(curr);
+        } else if (curr.type === "jwplayer") {
+          acc.jwplayer = curr;
+        } else if (curr.type === "factbox") {
+          acc.factbox = curr;
+        } else if (curr.type === "quotebox") {
+          acc.quotebox = curr;
+        }
+        return acc;
+      },
+      { images: [], markups: [] }
+    ) ?? ({} as BodyTextStructure);
 
   // insert images into the bodytext
   images?.forEach((image) => {
@@ -297,16 +282,12 @@ export const getContent = (article: Article) => {
     );
     const id = imageEl?.attribute?.instanceof_id;
     const cropParams = imageEl?.field?.viewports_json
-      ? getCropParams(
-          JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields
-        )
+      ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields)
       : "";
     const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
-    const imageElement = getImageElement(
-      baseImage,
-      imageEl?.field.imageCaption
-    );
+    const imageElement = getImageElement(baseImage, imageEl?.field.imageCaption);
     const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+
     htmlMap.splice(correctIndex, 0, imageElement);
   });
 
@@ -318,14 +299,10 @@ export const getContent = (article: Article) => {
     const markUpEl = Array.isArray(markupObj)
       ? markupObj.find(({ attribute }) => +attribute?.id === markup?.node_id)
       : markupObj;
-    if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== "string")
-      return;
+    if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== "string") return;
     const content = markUpEl?.field?.markup
       .replace(/\n/g, "")
-      .replace(
-        'src="//www.instagram.com/embed.js"',
-        'src="https://www.instagram.com/embed.js"'
-      ); // added protocol to instagram embed
+      .replace('src="//www.instagram.com/embed.js"', 'src="https://www.instagram.com/embed.js"'); // added protocol to instagram embed
     const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
     htmlMap.splice(correctIndex, 0, content);
   });
@@ -342,11 +319,7 @@ export const getContent = (article: Article) => {
   if (quotebox) {
     const index = quotebox?.metadata?.bodyTextIndex?.desktop;
     const quoteboxObj = article?.children?.quotebox;
-    if (
-      !quoteboxObj ||
-      typeof quoteboxObj?.field?.quote !== "string" ||
-      typeof index !== "number"
-    )
+    if (!quoteboxObj || typeof quoteboxObj?.field?.quote !== "string" || typeof index !== "number")
       return;
     const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
     const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
@@ -363,10 +336,7 @@ export const getContent = (article: Article) => {
       !factboxObj?.field?.bodytext
     )
       return;
-    const factboxElement = getFactboxElement(
-      factboxObj?.field?.title,
-      factboxObj?.field?.bodytext
-    );
+    const factboxElement = getFactboxElement(factboxObj?.field?.title, factboxObj?.field?.bodytext);
     const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
     htmlMap.splice(correctIndex, 0, factboxElement);
   }
