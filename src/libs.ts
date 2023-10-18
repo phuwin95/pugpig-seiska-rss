@@ -3,7 +3,17 @@ import { v5 as uuidv5 } from "uuid";
 import { ItemOptions } from "rss";
 import { SecretsManager } from "aws-sdk";
 
-import { Article, FullArticle, Structure } from "./types/article";
+import {
+  Article,
+  ArticleChildrenMap,
+  FactBox,
+  FullArticle,
+  ImageElement,
+  Jwplayer,
+  MarkUp,
+  QuoteBox,
+  Structure,
+} from "./types/article";
 import { KilkayaResponse } from "./types/kilkaya";
 
 export const getAccessToken = async () => {
@@ -205,6 +215,10 @@ const getCorrectIndex = (index: number, modifiedHtmlMap: string[], originalHtmlM
   const elementBefore = originalHtmlMap[index - 1];
   const indexOfElementBefore = modifiedHtmlMap.indexOf(elementBefore);
   const correctIndex = indexOfElementBefore + 1;
+
+  console.log("Correct Index :: ", index, correctIndex);
+  console.log("Length :: ", originalHtmlMap.length, modifiedHtmlMap.length);
+
   return correctIndex;
 };
 
@@ -248,14 +262,28 @@ export const getContent = (article: Article) => {
 
   const htmlMapCopy = [...htmlMap];
 
+  const articleChildrenMap = Object.keys(article?.children).reduce<ArticleChildrenMap>(
+    (acc, curr) => {
+      const children = article?.children[curr];
+      if (Array.isArray(children)) {
+        children.forEach((child) => {
+          acc[child?.attribute?.id] = child;
+        });
+      } else {
+        acc[children?.attribute?.id] = children;
+      }
+      return acc;
+    },
+    {}
+  );
+
   bodyTextStructure?.children?.forEach(({ metadata, node_id, type }) => {
     const index = metadata?.bodyTextIndex?.desktop;
+    if (typeof index !== "number") return;
 
     if (type === "image") {
-      if (typeof index !== "number") return;
-
       const baseUrl = "https://image.seiska.fi";
-      const imageEl = article?.children?.image?.find(({ attribute }) => +attribute?.id === node_id);
+      const imageEl = articleChildrenMap[node_id] as ImageElement;
       const id = imageEl?.attribute?.instanceof_id;
       const cropParams = imageEl?.field?.viewports_json
         ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields)
@@ -265,15 +293,12 @@ export const getContent = (article: Article) => {
 
       const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
       htmlMap.splice(correctIndex, 0, imageElement);
+      return;
     }
 
     if (type === "markup") {
-      if (typeof index !== "number") return;
+      const markUpEl = articleChildrenMap[node_id] as MarkUp;
 
-      const markupObj = article?.children?.markup;
-      const markUpEl = Array.isArray(markupObj)
-        ? markupObj.find(({ attribute }) => +attribute?.id === node_id)
-        : markupObj;
       if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== "string") return;
 
       const content = markUpEl?.field?.markup
@@ -282,20 +307,23 @@ export const getContent = (article: Article) => {
 
       const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
       htmlMap.splice(correctIndex, 0, content);
+      return;
     }
 
     if (type === "jwplayer") {
-      const jwplayerObj = article?.children?.jwplayer;
-      if (!jwplayerObj?.field?.vid || typeof index !== "number") return;
+      const jwplayerObj = articleChildrenMap[node_id] as Jwplayer;
+
+      if (!jwplayerObj?.field?.vid) return;
 
       const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
 
       const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
       htmlMap.splice(correctIndex, 0, jwplayerElement);
+      return;
     }
 
     if (type === "quotebox") {
-      const quoteboxObj = article?.children?.quotebox;
+      const quoteboxObj = articleChildrenMap[node_id] as QuoteBox;
       if (
         !quoteboxObj ||
         typeof quoteboxObj?.field?.quote !== "string" ||
@@ -307,10 +335,12 @@ export const getContent = (article: Article) => {
 
       const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
       htmlMap.splice(correctIndex, 0, quoteboxElement);
+      return;
     }
 
     if (type === "factbox") {
-      const factboxObj = article?.children?.factbox;
+      const factboxObj = articleChildrenMap[node_id] as FactBox;
+
       if (
         !factboxObj ||
         typeof index !== "number" ||
