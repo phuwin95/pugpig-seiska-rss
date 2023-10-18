@@ -214,7 +214,7 @@ const getCorrectIndex = (index: number, modifiedHtmlMap: string[], originalHtmlM
  * @param caption caption
  * @returns string
  */
-export const getImageElement = (url: string, caption?: string) =>
+export const getImageElement = (url: string, caption = "") =>
   `<figure class="pp-media"><img class="pp-media__image" alt="${caption}" src="${url}"><figcaption class="pp-media__caption">${caption}</figcaption></figure>`;
 
 export const getJwplayerElement = (id: string) =>
