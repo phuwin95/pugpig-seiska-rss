@@ -3,7 +3,7 @@ import { v5 as uuidv5 } from "uuid";
 import { ItemOptions } from "rss";
 import { SecretsManager } from "aws-sdk";
 
-import { Article, FullArticle, Structure, StructureChild } from "./types/article";
+import { Article, FullArticle, Structure } from "./types/article";
 import { KilkayaResponse } from "./types/kilkaya";
 
 export const getAccessToken = async () => {
@@ -93,6 +93,9 @@ export const createFeedItemsFromArticles = (articles: FullArticle[]) => {
     uniqueItemsMap[description] = true;
 
     const content = getContent(article);
+
+    console.log(article.attribute.id, content);
+
     const date = formatDate(+article?.field?.published * 1000);
     const categories = [article?.primarytag?.section];
     const image = getMainImage(article);
@@ -223,14 +226,6 @@ export const getQuoteBoxElement = (quote: string) =>
 export const getFactboxElement = (title: string, content: string) =>
   `<div class="factbox"><div class="content"><h2>${title}</h2><div class="fact"><p>${content}</p></div></div></div>`;
 
-type BodyTextStructure = {
-  images: StructureChild[];
-  markups: StructureChild[];
-  jwplayer?: StructureChild;
-  factbox?: StructureChild;
-  quotebox?: StructureChild;
-};
-
 /**
  * formats and inserts elements into the bodytext
  * @param article Article
@@ -242,8 +237,8 @@ export const getContent = (article: Article) => {
   const bodyTextStructure = structure.find((item: Structure) => item.type === "bodytext");
 
   // get htmlMap to insert elements into the bodytext
-  const html = parse(article.field.bodytext);
-  const htmlMap = html.childNodes.map(
+  const bodytextHTML = parse(article.field.bodytext);
+  const htmlMap = bodytextHTML.childNodes.map(
     (item) =>
       item
         .toString()
@@ -253,92 +248,86 @@ export const getContent = (article: Article) => {
 
   const htmlMapCopy = [...htmlMap];
 
-  const { images, markups, jwplayer, factbox, quotebox } =
-    bodyTextStructure?.children?.reduce<BodyTextStructure>(
-      (acc, curr) => {
-        if (curr.type === "image") {
-          acc.images.push(curr);
-        } else if (curr.type === "markup") {
-          acc.markups.push(curr);
-        } else if (curr.type === "jwplayer") {
-          acc.jwplayer = curr;
-        } else if (curr.type === "factbox") {
-          acc.factbox = curr;
-        } else if (curr.type === "quotebox") {
-          acc.quotebox = curr;
-        }
-        return acc;
-      },
-      { images: [], markups: [] }
-    ) ?? ({} as BodyTextStructure);
+  bodyTextStructure?.children?.forEach(({ metadata, node_id, type }) => {
+    const index = metadata?.bodyTextIndex?.desktop;
 
-  // insert images into the bodytext
-  images?.forEach((image) => {
-    const index = image?.metadata?.bodyTextIndex?.desktop;
-    if (typeof index !== "number") return;
-    const baseUrl = "https://image.seiska.fi";
-    const imageEl = article?.children?.image?.find(
-      ({ attribute }) => +attribute?.id === image?.node_id
-    );
-    const id = imageEl?.attribute?.instanceof_id;
-    const cropParams = imageEl?.field?.viewports_json
-      ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields)
-      : "";
-    const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
-    const imageElement = getImageElement(baseImage, imageEl?.field.imageCaption);
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+    if (type === "image") {
+      if (typeof index !== "number") return;
 
-    htmlMap.splice(correctIndex, 0, imageElement);
+      const baseUrl = "https://image.seiska.fi";
+      const imageEl = article?.children?.image?.find(({ attribute }) => +attribute?.id === node_id);
+      const id = imageEl?.attribute?.instanceof_id;
+      const cropParams = imageEl?.field?.viewports_json
+        ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields)
+        : "";
+      const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
+      const imageElement = getImageElement(baseImage, imageEl?.field.imageCaption);
+
+      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+      htmlMap.splice(correctIndex, 0, imageElement);
+    }
+
+    if (type === "markup") {
+      if (typeof index !== "number") return;
+
+      const markupObj = article?.children?.markup;
+      const markUpEl = Array.isArray(markupObj)
+        ? markupObj.find(({ attribute }) => +attribute?.id === node_id)
+        : markupObj;
+      if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== "string") return;
+
+      const content = markUpEl?.field?.markup
+        .replace(/\n/g, "")
+        .replace('src="//www.instagram.com/embed.js"', 'src="https://www.instagram.com/embed.js"'); // added protocol to instagram embed
+
+      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+      htmlMap.splice(correctIndex, 0, content);
+    }
+
+    if (type === "jwplayer") {
+      const jwplayerObj = article?.children?.jwplayer;
+      if (!jwplayerObj?.field?.vid || typeof index !== "number") return;
+
+      const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
+
+      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+      htmlMap.splice(correctIndex, 0, jwplayerElement);
+    }
+
+    if (type === "quotebox") {
+      const quoteboxObj = article?.children?.quotebox;
+      if (
+        !quoteboxObj ||
+        typeof quoteboxObj?.field?.quote !== "string" ||
+        typeof index !== "number"
+      )
+        return;
+
+      const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
+
+      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+      htmlMap.splice(correctIndex, 0, quoteboxElement);
+    }
+
+    if (type === "factbox") {
+      const factboxObj = article?.children?.factbox;
+      if (
+        !factboxObj ||
+        typeof index !== "number" ||
+        !factboxObj?.field?.title ||
+        !factboxObj?.field?.bodytext
+      )
+        return;
+
+      const factboxElement = getFactboxElement(
+        factboxObj?.field?.title,
+        factboxObj?.field?.bodytext
+      );
+
+      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+      htmlMap.splice(correctIndex, 0, factboxElement);
+    }
   });
 
-  // insert markups into the bodytext
-  markups?.forEach((markup) => {
-    const index = markup?.metadata?.bodyTextIndex?.desktop;
-    if (typeof index !== "number") return;
-    const markupObj = article?.children?.markup;
-    const markUpEl = Array.isArray(markupObj)
-      ? markupObj.find(({ attribute }) => +attribute?.id === markup?.node_id)
-      : markupObj;
-    if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== "string") return;
-    const content = markUpEl?.field?.markup
-      .replace(/\n/g, "")
-      .replace('src="//www.instagram.com/embed.js"', 'src="https://www.instagram.com/embed.js"'); // added protocol to instagram embed
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-    htmlMap.splice(correctIndex, 0, content);
-  });
-
-  if (jwplayer) {
-    const index = jwplayer?.metadata?.bodyTextIndex?.desktop;
-    const jwplayerObj = article?.children?.jwplayer;
-    if (!jwplayerObj?.field?.vid || typeof index !== "number") return;
-    const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-    htmlMap.splice(correctIndex, 0, jwplayerElement);
-  }
-
-  if (quotebox) {
-    const index = quotebox?.metadata?.bodyTextIndex?.desktop;
-    const quoteboxObj = article?.children?.quotebox;
-    if (!quoteboxObj || typeof quoteboxObj?.field?.quote !== "string" || typeof index !== "number")
-      return;
-    const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-    htmlMap.splice(correctIndex, 0, quoteboxElement);
-  }
-
-  if (factbox) {
-    const index = factbox?.metadata?.bodyTextIndex?.desktop;
-    const factboxObj = article?.children?.factbox;
-    if (
-      !factboxObj ||
-      typeof index !== "number" ||
-      !factboxObj?.field?.title ||
-      !factboxObj?.field?.bodytext
-    )
-      return;
-    const factboxElement = getFactboxElement(factboxObj?.field?.title, factboxObj?.field?.bodytext);
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-    htmlMap.splice(correctIndex, 0, factboxElement);
-  }
   return htmlMap.join("");
 };
