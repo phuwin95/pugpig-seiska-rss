@@ -104,7 +104,7 @@ export const createFeedItemsFromArticles = (articles: FullArticle[]) => {
 
     const content = getContent(article);
 
-    console.log(article.attribute.id, content);
+    // console.log(article.attribute.id, content);
 
     const date = formatDate(+article?.field?.published * 1000);
     const categories = [article?.primarytag?.section];
@@ -216,8 +216,8 @@ const getCorrectIndex = (index: number, modifiedHtmlMap: string[], originalHtmlM
   const indexOfElementBefore = modifiedHtmlMap.indexOf(elementBefore);
   const correctIndex = indexOfElementBefore + 1;
 
-  console.log("Correct Index :: ", index, correctIndex);
-  console.log("Length :: ", originalHtmlMap.length, modifiedHtmlMap.length);
+  // console.log("Correct Index :: ", index, correctIndex);
+  // console.log("Length :: ", originalHtmlMap.length, modifiedHtmlMap.length);
 
   return correctIndex;
 };
@@ -282,12 +282,13 @@ export const getContent = (article: Article) => {
     if (typeof index !== "number") return;
 
     if (type === "image") {
-      const baseUrl = "https://image.seiska.fi";
       const imageEl = articleChildrenMap[node_id] as ImageElement;
       const id = imageEl?.attribute?.instanceof_id;
       const cropParams = imageEl?.field?.viewports_json
         ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields)
         : "";
+
+      const baseUrl = "https://image.seiska.fi";
       const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
       const imageElement = getImageElement(baseImage, imageEl?.field.imageCaption);
 
@@ -324,12 +325,7 @@ export const getContent = (article: Article) => {
 
     if (type === "quotebox") {
       const quoteboxObj = articleChildrenMap[node_id] as QuoteBox;
-      if (
-        !quoteboxObj ||
-        typeof quoteboxObj?.field?.quote !== "string" ||
-        typeof index !== "number"
-      )
-        return;
+      if (!quoteboxObj || typeof quoteboxObj?.field?.quote !== "string") return;
 
       const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
 
@@ -340,19 +336,11 @@ export const getContent = (article: Article) => {
 
     if (type === "factbox") {
       const factboxObj = articleChildrenMap[node_id] as FactBox;
+      const { title, bodytext } = factboxObj?.field ?? {};
 
-      if (
-        !factboxObj ||
-        typeof index !== "number" ||
-        !factboxObj?.field?.title ||
-        !factboxObj?.field?.bodytext
-      )
-        return;
+      if (!factboxObj || !title || !bodytext) return;
 
-      const factboxElement = getFactboxElement(
-        factboxObj?.field?.title,
-        factboxObj?.field?.bodytext
-      );
+      const factboxElement = getFactboxElement(title, bodytext);
 
       const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
       htmlMap.splice(correctIndex, 0, factboxElement);
