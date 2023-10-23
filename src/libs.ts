@@ -104,8 +104,6 @@ export const createFeedItemsFromArticles = (articles: FullArticle[]) => {
 
     const content = getContent(article);
 
-    // console.log(article.attribute.id, content);
-
     const date = formatDate(+article?.field?.published * 1000);
     const categories = [article?.primarytag?.section];
     const image = getMainImage(article);
@@ -215,10 +213,6 @@ const getCorrectIndex = (index: number, modifiedHtmlMap: string[], originalHtmlM
   const elementBefore = originalHtmlMap[index - 1];
   const indexOfElementBefore = modifiedHtmlMap.indexOf(elementBefore);
   const correctIndex = indexOfElementBefore + 1;
-
-  // console.log("Correct Index :: ", index, correctIndex);
-  // console.log("Length :: ", originalHtmlMap.length, modifiedHtmlMap.length);
-
   return correctIndex;
 };
 
