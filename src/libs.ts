@@ -324,14 +324,11 @@ export const getContent = (article: Article) => {
 
     if (type === "markup") {
       const markUpEl = articleChildrenMap[node_id] as MarkUp;
+      const markupContent = markUpEl?.field?.markup;
 
-      if (
-        !markUpEl?.field?.markup ||
-        typeof markUpEl?.field?.markup !== "string"
-      )
-        return;
+      if (!markupContent || typeof markupContent !== "string") return;
 
-      const content = markUpEl?.field?.markup
+      const content = markupContent
         .replace(/\n/g, "")
         .replace(
           'src="//www.instagram.com/embed.js"',
