@@ -290,7 +290,7 @@ export const getContent = (article: Article) => {
 
       const baseUrl = "https://image.seiska.fi";
       const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
-      const imageElement = getImageElement(baseImage, imageEl?.field.imageCaption);
+      const imageElement = getImageElement(baseImage, imageEl?.field?.imageCaption);
 
       const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
       htmlMap.splice(correctIndex, 0, imageElement);
