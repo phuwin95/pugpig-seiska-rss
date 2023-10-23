@@ -20,7 +20,9 @@ export const getAccessToken = async () => {
   const secretManager = new SecretsManager({
     region: "eu-west-1",
   });
-  const secret = await secretManager.getSecretValue({ SecretId: "kilkaya-access-token" }).promise();
+  const secret = await secretManager
+    .getSecretValue({ SecretId: "kilkaya-access-token" })
+    .promise();
   const accessToken = secret.SecretString;
   return accessToken;
 };
@@ -71,10 +73,15 @@ export const getCropParams = (crop?: {
 };
 
 export const getAuthor = (article: Article) =>
-  article?.children?.byline?.field?.firstname + " " + article?.children?.byline?.field?.lastname;
+  article?.children?.byline?.field?.firstname +
+  " " +
+  article?.children?.byline?.field?.lastname;
 
 export const getTags = (article: Article) => {
-  const tags = typeof article?.tag?.tag === "string" ? [article?.tag?.tag] : article?.tag?.tag;
+  const tags =
+    typeof article?.tag?.tag === "string"
+      ? [article?.tag?.tag]
+      : article?.tag?.tag;
 
   return tags.map((tag) => ({ tag }));
 };
@@ -96,7 +103,12 @@ export const createFeedItemsFromArticles = (articles: FullArticle[]) => {
     const description = article?.field?.subtitle;
 
     // skip if guid, title or description already exists
-    if (uniqueItemsMap[guid] || uniqueItemsMap[title] || uniqueItemsMap[description]) return acc;
+    if (
+      uniqueItemsMap[guid] ||
+      uniqueItemsMap[title] ||
+      uniqueItemsMap[description]
+    )
+      return acc;
 
     uniqueItemsMap[guid] = true;
     uniqueItemsMap[title] = true;
@@ -117,7 +129,11 @@ export const createFeedItemsFromArticles = (articles: FullArticle[]) => {
       date,
       categories,
       author,
-      custom_elements: [{ "content:encoded": content }, { main_image: image }, ...getTags(article)],
+      custom_elements: [
+        { "content:encoded": content },
+        { main_image: image },
+        ...getTags(article),
+      ],
     };
 
     acc.push(feedItem);
@@ -174,11 +190,13 @@ export const formatDate = (date: string | number) => {
  */
 export const getMainImage = (article: Article) => {
   const baseUrl = "https://image.seiska.fi";
-  const id = article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
+  const id =
+    article?.children?.articleHeader?.children?.image?.attribute?.instanceof_id;
   if (!article?.children?.articleHeader?.children?.image?.field)
     return article?.children?.articleHeader?.children?.jwplayer?.field?.preview;
   if (id) {
-    const cropParamsJson = article?.children?.articleHeader?.children?.image?.field?.viewports_json;
+    const cropParamsJson =
+      article?.children?.articleHeader?.children?.image?.field?.viewports_json;
     const cropParams = cropParamsJson
       ? getCropParams(JSON.parse(cropParamsJson)?.desktop?.fields)
       : "";
@@ -209,7 +227,11 @@ export const getMainImage = (article: Article) => {
  * @param originalHtmlMap copy of the original htmlMap
  * @returns the correct index of the element in the current body text
  */
-const getCorrectIndex = (index: number, modifiedHtmlMap: string[], originalHtmlMap: string[]) => {
+const getCorrectIndex = (
+  index: number,
+  modifiedHtmlMap: string[],
+  originalHtmlMap: string[]
+) => {
   const elementBefore = originalHtmlMap[index - 1];
   const indexOfElementBefore = modifiedHtmlMap.indexOf(elementBefore);
   const correctIndex = indexOfElementBefore + 1;
@@ -242,7 +264,9 @@ export const getFactboxElement = (title: string, content: string) =>
 export const getContent = (article: Article) => {
   // get the images from the bodytext structure
   const structure: Structure[] = JSON.parse(article?.field?.structure_json);
-  const bodyTextStructure = structure.find((item: Structure) => item.type === "bodytext");
+  const bodyTextStructure = structure.find(
+    (item: Structure) => item.type === "bodytext"
+  );
 
   // get htmlMap to insert elements into the bodytext
   const bodytextHTML = parse(article.field.bodytext);
@@ -251,25 +275,27 @@ export const getContent = (article: Article) => {
       item
         .toString()
         .replace(/\n/g, "") // remove \
-        .replace('href="https://labrador.seiska.fi/', 'href="https://www.seiska.fi/') // replace labrador links with seiska links
+        .replace(
+          'href="https://labrador.seiska.fi/',
+          'href="https://www.seiska.fi/'
+        ) // replace labrador links with seiska links
   );
 
   const htmlMapCopy = [...htmlMap];
 
-  const articleChildrenMap = Object.keys(article?.children).reduce<ArticleChildrenMap>(
-    (acc, curr) => {
-      const children = article?.children[curr];
-      if (Array.isArray(children)) {
-        children.forEach((child) => {
-          acc[child?.attribute?.id] = child;
-        });
-      } else {
-        acc[children?.attribute?.id] = children;
-      }
-      return acc;
-    },
-    {}
-  );
+  const articleChildrenMap = Object.keys(
+    article?.children
+  ).reduce<ArticleChildrenMap>((acc, curr) => {
+    const children = article?.children[curr];
+    if (Array.isArray(children)) {
+      children.forEach((child) => {
+        acc[child?.attribute?.id] = child;
+      });
+    } else {
+      acc[children?.attribute?.id] = children;
+    }
+    return acc;
+  }, {});
 
   bodyTextStructure?.children?.forEach(({ metadata, node_id, type }) => {
     const index = metadata?.bodyTextIndex?.desktop;
@@ -279,12 +305,17 @@ export const getContent = (article: Article) => {
       const imageEl = articleChildrenMap[node_id] as ImageElement;
       const id = imageEl?.attribute?.instanceof_id;
       const cropParams = imageEl?.field?.viewports_json
-        ? getCropParams(JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields)
+        ? getCropParams(
+            JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields
+          )
         : "";
 
       const baseUrl = "https://image.seiska.fi";
       const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
-      const imageElement = getImageElement(baseImage, imageEl?.field?.imageCaption);
+      const imageElement = getImageElement(
+        baseImage,
+        imageEl?.field?.imageCaption
+      );
 
       const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
       htmlMap.splice(correctIndex, 0, imageElement);
@@ -294,11 +325,18 @@ export const getContent = (article: Article) => {
     if (type === "markup") {
       const markUpEl = articleChildrenMap[node_id] as MarkUp;
 
-      if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== "string") return;
+      if (
+        !markUpEl?.field?.markup ||
+        typeof markUpEl?.field?.markup !== "string"
+      )
+        return;
 
       const content = markUpEl?.field?.markup
         .replace(/\n/g, "")
-        .replace('src="//www.instagram.com/embed.js"', 'src="https://www.instagram.com/embed.js"'); // added protocol to instagram embed
+        .replace(
+          'src="//www.instagram.com/embed.js"',
+          'src="https://www.instagram.com/embed.js"'
+        ); // added protocol to instagram embed
 
       const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
       htmlMap.splice(correctIndex, 0, content);
