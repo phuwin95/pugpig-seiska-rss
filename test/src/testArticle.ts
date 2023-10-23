@@ -1,3 +1,8 @@
+/**
+ * This is output of getContent method for article below
+ */
+export const content = `<p><span data-lab-italic="italic" class="italic m-italic">Leijonan luola Suomi -</span>sijoittajat pääsevät 9.10. nähtävässä jaksossa urheilemaan, kun ohjelmassa haetaan 50 000 euronsijoitusta seinäkiipeilylaitteita valmistavalle yritykselle.</p><div style="position:relative;overflow:hidden;padding-bottom:56.25%"><iframe src="https://videot.seiska.fi/players/BtZhHEW7-wRrEuXAq.html" width="100%" height="100%" frameborder="0" scrolling="auto" title="PMMP sai karaokebaarin sekaisin" style="position:absolute;" allowfullscreen></iframe></div><p>Suunnittelija jayrittäjä <span data-lab-font_weight="font-weight-bold" class="font-weight-bold m-font-weight-bold">Kaarle Vanamo</span> esittelee Climbstationin ja kertoo, kuinka laite reagoiseinäkiipeilijän omaan vauhtiin ja kiipeilyseinä rullaa sen mukaan. Laite herättää leijonien kiinnostuksen.</p><p> – Saisiko joku leijonatestata tätä? <span data-lab-font_weight="font-weight-bold" class="font-weight-bold m-font-weight-bold">Jenni Kynnös </span>innostuu.</p><p>Lopulta Jari Sarasvuo päätyy testaamaan kiipeilytaitojaan. Seuraa kiroilua, kohellusta ja naurua, kun liikkuva seinä tuottaa sijoittajalle haasteita.</p><p> – Nämä ei olevarsinaisesti kiipeilykengät, Jari mutisee.</p><p><span class="article-link"> <a href="https://www.seiska.fi/katso/ensitreffit-alttarilla-matin-taustoista-paljastui-yllattava-seikka-haki-apua-huonoihin-elintapoihinsa/1158550"><strong>Ensitreffit alttarilla -Matin taustoista paljastui yllättävä seikka – haki apua huonoihin elintapoihinsa</strong></a> </span><br></p><figure class="pp-media"><img class="pp-media__image" alt="" src="https://image.seiska.fi/undefined.jpg?width=710&"><figcaption class="pp-media__caption"></figcaption></figure><p>Vaikka kiipeäminen itsessään ei sujunut täysin mallikkaasti, Jari kehuu hetkeä hauskaksi. </p><p> – Mulla oli kivaa! Jarijulistaa huteran yrityksensä päätteeksi.</p><p>Seuraavaksi Wolt-perustajana tunnettu <span data-lab-font_weight="font-weight-bold" class="font-weight-bold m-font-weight-bold">Elias Aalto</span> näyttääleijonille, kuinka kiivetään tyylillä. Sijoittajat ällistelevät, kun Elias saa vaivatta kiipeilyseinän rullaamaan vauhdilla.</p><p> – Jari, tuolta tuntuunöyryytys! <span data-lab-font_weight="font-weight-bold" class="font-weight-bold m-font-weight-bold">Kim Väisänen </span>toteaa.<br></p><p> – Nii-in, Jari sanoosaaden muut leijonat nauramaan.</p><p> <span data-lab-italic="italic" class="italic m-italic">Leijonan luola Suomimaanantaisin Nelosella ja Ruudussa.</span></p>`;
+
 export const article = {
   "@attributes": {
     id: "1158659",
@@ -27,8 +32,7 @@ export const article = {
     created: "1696849569",
     bodytext:
       '<p><span data-lab-italic="italic" class="italic m-italic">Leijonan luola Suomi -</span>sijoittajat pääsevät 9.10. nähtävässä jaksossa urheilemaan, kun ohjelmassa haetaan 50 000 euron\nsijoitusta seinäkiipeilylaitteita valmistavalle yritykselle.</p><p>Suunnittelija ja\nyrittäjä <span data-lab-font_weight="font-weight-bold" class="font-weight-bold m-font-weight-bold">Kaarle Vanamo</span> esittelee Climbstationin ja kertoo, kuinka laite reagoi\nseinäkiipeilijän omaan vauhtiin ja kiipeilyseinä rullaa sen mukaan. Laite herättää leijonien kiinnostuksen.</p><p> – Saisiko joku leijona\ntestata tätä? <span data-lab-font_weight="font-weight-bold" class="font-weight-bold m-font-weight-bold">Jenni Kynnös </span>innostuu.</p><p>Lopulta Jari Sarasvuo päätyy testaamaan kiipeilytaitojaan. Seuraa kiroilua, kohellusta ja naurua, kun liikkuva seinä tuottaa sijoittajalle haasteita.</p><p> – Nämä ei ole\nvarsinaisesti kiipeilykengät, Jari mutisee.</p><p><span class="article-link"> <a href="https://labrador.seiska.fi/katso/ensitreffit-alttarilla-matin-taustoista-paljastui-yllattava-seikka-haki-apua-huonoihin-elintapoihinsa/1158550"><strong>Ensitreffit alttarilla -Matin taustoista paljastui yllättävä seikka – haki apua huonoihin elintapoihinsa</strong></a> </span><br></p><p>Vaikka kiipeäminen itsessään ei sujunut täysin mallikkaasti, Jari kehuu hetkeä hauskaksi. </p><p> – Mulla oli kivaa! Jari\njulistaa huteran yrityksensä päätteeksi.</p><p>Seuraavaksi Wolt-perustajana tunnettu <span data-lab-font_weight="font-weight-bold" class="font-weight-bold m-font-weight-bold">Elias Aalto</span> näyttää\nleijonille, kuinka kiivetään tyylillä. Sijoittajat ällistelevät, kun Elias saa vaivatta kiipeilyseinän rullaamaan vauhdilla.</p><p> – Jari, tuolta tuntuu\nnöyryytys! <span data-lab-font_weight="font-weight-bold" class="font-weight-bold m-font-weight-bold">Kim Väisänen </span>toteaa.<br></p><p> – Nii-in, Jari sanoo\nsaaden muut leijonat nauramaan.</p><p> <span data-lab-italic="italic" class="italic m-italic">Leijonan luola Suomi\nmaanantaisin Nelosella ja Ruudussa.</span></p>',
-    last_published_by:
-      '[[26,1696851605,"H"],[25,1696859027,"A"],[25,1696859044,"A"]]',
+    last_published_by: '[[26,1696851605,"H"],[25,1696859027,"A"],[25,1696859044,"A"]]',
     lab_site_id: "2",
     visibility_status: "P",
     viewports_json: "[]",
@@ -37,8 +41,7 @@ export const article = {
       '[{"imageId":1158673,"timestamp":1696850035},{"imageId":1158699,"timestamp":1696851562}]',
     title:
       'Jari Sarasvuo häviää näyttävästi Leijonan luolassa Wolt-perustajalle: "Tuolta tuntuu nöyryytys!"',
-    subtitle:
-      "Jari Sarasvuo heittäytyy kiipeilyseinän vietäväksi huonolla menestyksellä.",
+    subtitle: "Jari Sarasvuo heittäytyy kiipeilyseinän vietäväksi huonolla menestyksellä.",
     structure_json:
       '[{"type":"articleHeader","width":100,"metadata":{"width":{}},"id":"c82ba3bb-8bc2-4a27-a928-af7ce482223e","selector":"#lab-dz-header","children":[{"type":"articleMeta","width":100,"metadata":{"width":{}},"id":"1d212bca-cf51-4c2b-985a-f447ebeb3872","children":[{"type":"byline","width":100,"metadata":{"width":{}},"id":"d9ee1c21-e512-44ff-a84e-291481449869","children":[],"node_id":1158662}],"node_id":1158659},{"type":"image","width":100,"metadata":{"width":{}},"id":"57a3d5e8-6590-497e-9400-109793d96251","children":[],"node_id":1158700}],"node_id":1158660},{"type":"bodytext","width":100,"metadata":{"width":{}},"id":"1658cf74-2c2c-41be-943e-9a904171841f","selector":"#lab-dz-bodytxt","children":[{"type":"jwplayer","width":100,"metadata":{"float":{"desktop":""},"bodyTextIndex":{"desktop":1},"width":{"desktop":100}},"id":"addc1318-0d94-45e3-9c08-f2c3cbd61374","children":[],"node_id":1158672},{"type":"markup","width":100,"metadata":{"float":{"desktop":""},"bodyTextIndex":{"desktop":6},"width":{"desktop":100}},"id":"7ba0b5e3-a825-4036-b021-d292d92e6e59","children":[],"node_id":1158698},{"type":"image","width":100,"metadata":{"float":{"desktop":""},"bodyTextIndex":{"desktop":6},"width":{"desktop":100}},"id":"4de31d8e-3562-4a47-b342-bf0f28b5c957","children":[]}],"node_id":1158659},{"type":"articleFooter","width":100,"metadata":{"width":{}},"id":"be752090-a7f9-4589-9158-0b17d1114fa8","selector":"#articleFooter","children":[{"type":"articleList","width":100,"metadata":{"width":{}},"id":"b6af96d7-8a95-4dd8-949f-fedf7ef96146","children":[{"type":"article","width":100,"metadata":{"width":{}},"id":"59051c2f-570d-4a4f-81e6-89e29a76f382","children":[{"type":"image","width":100,"metadata":{"width":{}},"id":"cf3ef1fd-6da2-492f-bacc-58051ba83a5e","children":[],"node_id":1158676}],"node_id":1158675},{"type":"article","width":100,"metadata":{"width":{}},"id":"dbd3c83f-ee3a-477a-b8f5-2ae47b3fe0ea","children":[{"type":"image","width":100,"metadata":{"width":{}},"id":"718fe59b-8111-4285-bc65-d24325623c47","children":[],"node_id":1158678}],"node_id":1158677},{"type":"article","width":100,"metadata":{"width":{}},"id":"2cb3980f-ab2c-4745-b896-e5ee87845c71","children":[{"type":"image","width":100,"metadata":{"width":{}},"id":"98e56f36-ec54-400c-8f9c-de6782149e8b","children":[],"node_id":1158680}],"node_id":1158679}],"node_id":1158661}],"node_id":1158659}]',
     showonfp: "1",
@@ -316,13 +319,7 @@ export const article = {
                 collection: "multiset",
                 multivalued: "1",
               },
-              tag: [
-                "katso",
-                "katja ståhl",
-                "elämäni biisi",
-                "tarja halonen",
-                "stefan lindfors",
-              ],
+              tag: ["katso", "katja ståhl", "elämäni biisi", "tarja halonen", "stefan lindfors"],
             },
             children: {
               "@attributes": {
@@ -392,8 +389,7 @@ export const article = {
               subtitle:
                 "Aktivisti Leo Straniuksen aikataulutettu elämä on mennä yli hilseen Efter nio -juontajakaksikolla.",
               viewports_json: "[]",
-              title:
-                "Efter nio -juontajat provosoituvat haastateltavan elämäntyylistä",
+              title: "Efter nio -juontajat provosoituvat haastateltavan elämäntyylistä",
               site_id: "2",
               site_alias: "seiska",
               showcomments: {},
@@ -517,8 +513,7 @@ export const article = {
         viewports_json: "[]",
         vid: "BtZhHEW7",
         title: "Mikko Leppilampi kertoo Comeback-elokuvasta",
-        preview:
-          "https://videot.seiska.fi/v2/media/BtZhHEW7/poster.jpg?width=720",
+        preview: "https://videot.seiska.fi/v2/media/BtZhHEW7/poster.jpg?width=720",
         description: "Mikko Leppilampi Comeback-elokuvan pressitilaisuudessa.",
       },
     },
