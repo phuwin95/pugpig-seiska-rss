@@ -1,5 +1,5 @@
 import * as libs from "../../src/libs";
-import { article } from "./testArticle";
+import { article, content as contentString } from "./testArticle";
 
 describe("getImageElement", () => {
   it("should return image element", () => {
@@ -163,4 +163,16 @@ describe("createFeedItemsFromArticles", () => {
       ],
     });
   });
+});
+
+describe("getContent", () => {
+  const content = libs.getContent(article);
+  
+  it("should return content", () => {
+    expect(content).toBe(contentString);
+  });
+
+  it("should return correct data type", () => {
+    expect(typeof content).toBe("string");
+  })
 });
