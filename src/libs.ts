@@ -301,78 +301,84 @@ export const getContent = (article: Article) => {
     const index = metadata?.bodyTextIndex?.desktop;
     if (typeof index !== "number") return;
 
-    if (type === "image") {
-      const imageEl = articleChildrenMap[node_id] as ImageElement;
-      const id = imageEl?.attribute?.instanceof_id;
-      const cropParams = imageEl?.field?.viewports_json
-        ? getCropParams(
-            JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields
-          )
-        : "";
+    switch (type) {
+      case "image": {
+        const imageEl = articleChildrenMap[node_id] as ImageElement;
+        const id = imageEl?.attribute?.instanceof_id;
+        const cropParams = imageEl?.field?.viewports_json
+          ? getCropParams(
+              JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields
+            )
+          : "";
 
-      const baseUrl = "https://image.seiska.fi";
-      const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
-      const imageElement = getImageElement(
-        baseImage,
-        imageEl?.field?.imageCaption
-      );
+        const baseUrl = "https://image.seiska.fi";
+        const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
+        const imageElement = getImageElement(
+          baseImage,
+          imageEl?.field?.imageCaption
+        );
 
-      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-      htmlMap.splice(correctIndex, 0, imageElement);
-      return;
-    }
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, imageElement);
+        return;
+      }
 
-    if (type === "markup") {
-      const markUpEl = articleChildrenMap[node_id] as MarkUp;
-      const markupContent = markUpEl?.field?.markup;
+      case "markup": {
+        const markUpEl = articleChildrenMap[node_id] as MarkUp;
+        const markupContent = markUpEl?.field?.markup;
 
-      if (!markupContent || typeof markupContent !== "string") return;
+        if (!markupContent || typeof markupContent !== "string") return;
 
-      const content = markupContent
-        .replace(/\n/g, "")
-        .replace(
-          'src="//www.instagram.com/embed.js"',
-          'src="https://www.instagram.com/embed.js"'
-        ); // added protocol to instagram embed
+        const content = markupContent
+          .replace(/\n/g, "")
+          .replace(
+            'src="//www.instagram.com/embed.js"',
+            'src="https://www.instagram.com/embed.js"'
+          ); // added protocol to instagram embed
 
-      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-      htmlMap.splice(correctIndex, 0, content);
-      return;
-    }
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, content);
+        return;
+      }
+      case "jwplayer": {
+        const jwplayerObj = articleChildrenMap[node_id] as Jwplayer;
 
-    if (type === "jwplayer") {
-      const jwplayerObj = articleChildrenMap[node_id] as Jwplayer;
+        if (!jwplayerObj?.field?.vid) return;
 
-      if (!jwplayerObj?.field?.vid) return;
+        const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
 
-      const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, jwplayerElement);
+        return;
+      }
 
-      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-      htmlMap.splice(correctIndex, 0, jwplayerElement);
-      return;
-    }
+      case "quotebox": {
+        const quoteboxObj = articleChildrenMap[node_id] as QuoteBox;
+        if (!quoteboxObj || typeof quoteboxObj?.field?.quote !== "string")
+          return;
 
-    if (type === "quotebox") {
-      const quoteboxObj = articleChildrenMap[node_id] as QuoteBox;
-      if (!quoteboxObj || typeof quoteboxObj?.field?.quote !== "string") return;
+        const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
 
-      const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, quoteboxElement);
+        return;
+      }
 
-      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-      htmlMap.splice(correctIndex, 0, quoteboxElement);
-      return;
-    }
+      case "factbox": {
+        const factboxObj = articleChildrenMap[node_id] as FactBox;
+        const { title, bodytext } = factboxObj?.field ?? {};
 
-    if (type === "factbox") {
-      const factboxObj = articleChildrenMap[node_id] as FactBox;
-      const { title, bodytext } = factboxObj?.field ?? {};
+        if (!factboxObj || !title || !bodytext) return;
 
-      if (!factboxObj || !title || !bodytext) return;
+        const factboxElement = getFactboxElement(title, bodytext);
 
-      const factboxElement = getFactboxElement(title, bodytext);
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, factboxElement);
+        return;
+      }
 
-      const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-      htmlMap.splice(correctIndex, 0, factboxElement);
+      default:
+        return;
     }
   });
 
