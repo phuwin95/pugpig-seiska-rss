@@ -340,6 +340,7 @@ export const getContent = (article: Article) => {
         htmlMap.splice(correctIndex, 0, content);
         return;
       }
+      
       case "jwplayer": {
         const jwplayerObj = articleChildrenMap[node_id] as Jwplayer;
 
