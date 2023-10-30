@@ -3,7 +3,17 @@ import { v5 as uuidv5 } from "uuid";
 import { ItemOptions } from "rss";
 import { SecretsManager } from "aws-sdk";
 
-import { Article, FullArticle, Structure } from "./types/article";
+import {
+  Article,
+  ArticleChildrenMap,
+  FactBox,
+  FullArticle,
+  ImageElement,
+  Jwplayer,
+  MarkUp,
+  QuoteBox,
+  Structure,
+} from "./types/article";
 import { KilkayaResponse } from "./types/kilkaya";
 
 export const getAccessToken = async () => {
@@ -87,7 +97,7 @@ export const createFeedItemsFromArticles = (articles: FullArticle[]) => {
   return articles.reduce((acc, curr) => {
     const article = curr?.article;
 
-    console.log("article is: ", article);
+    // console.log("article is: ", article);
     const guid = uuidv5(article?.attribute.id, uuidv5.URL);
     const title = article?.field?.title;
     const description = article?.field?.subtitle;
@@ -105,6 +115,7 @@ export const createFeedItemsFromArticles = (articles: FullArticle[]) => {
     uniqueItemsMap[description] = true;
 
     const content = getContent(article);
+
     const date = formatDate(+article?.field?.published * 1000);
     const categories = [article?.primarytag?.section];
     const image = getMainImage(article);
@@ -233,7 +244,7 @@ const getCorrectIndex = (
  * @param caption caption
  * @returns string
  */
-export const getImageElement = (url: string, caption?: string) =>
+export const getImageElement = (url: string, caption = "") =>
   `<figure class="pp-media"><img class="pp-media__image" alt="${caption}" src="${url}"><figcaption class="pp-media__caption">${caption}</figcaption></figure>`;
 
 export const getJwplayerElement = (id: string) =>
@@ -256,25 +267,10 @@ export const getContent = (article: Article) => {
   const bodyTextStructure = structure.find(
     (item: Structure) => item.type === "bodytext"
   );
-  const images = bodyTextStructure?.children?.filter(
-    (item) => item.type === "image"
-  );
-  const markups = bodyTextStructure?.children?.filter(
-    (item) => item.type === "markup"
-  );
-  const jwplayer = bodyTextStructure?.children?.find(
-    (item) => item.type === "jwplayer"
-  );
-  const factbox = bodyTextStructure?.children?.find(
-    (item) => item.type === "factbox"
-  );
-  const quotebox = bodyTextStructure?.children?.find(
-    (item) => item.type === "quotebox"
-  );
 
   // get htmlMap to insert elements into the bodytext
-  const html = parse(article.field.bodytext);
-  const htmlMap = html.childNodes.map(
+  const bodytextHTML = parse(article.field.bodytext);
+  const htmlMap = bodytextHTML.childNodes.map(
     (item) =>
       item
         .toString()
@@ -287,88 +283,105 @@ export const getContent = (article: Article) => {
 
   const htmlMapCopy = [...htmlMap];
 
-  // insert images into the bodytext
-  images?.forEach((image) => {
-    const index = image?.metadata?.bodyTextIndex?.desktop;
+  const articleChildrenMap = Object.keys(
+    article?.children
+  ).reduce<ArticleChildrenMap>((acc, curr) => {
+    const children = article?.children[curr];
+    if (Array.isArray(children)) {
+      children.forEach((child) => {
+        acc[child?.attribute?.id] = child;
+      });
+    } else {
+      acc[children?.attribute?.id] = children;
+    }
+    return acc;
+  }, {});
+
+  bodyTextStructure?.children?.forEach(({ metadata, node_id, type }) => {
+    const index = metadata?.bodyTextIndex?.desktop;
     if (typeof index !== "number") return;
-    const baseUrl = "https://image.seiska.fi";
-    const imageEl = article?.children?.image?.find(
-      ({ attribute }) => +attribute?.id === image?.node_id
-    );
-    const id = imageEl?.attribute?.instanceof_id;
-    const cropParams = imageEl?.field?.viewports_json
-      ? getCropParams(
-          JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields
-        )
-      : "";
-    const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
-    const imageElement = getImageElement(
-      baseImage,
-      imageEl?.field.imageCaption
-    );
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-    htmlMap.splice(correctIndex, 0, imageElement);
+
+    switch (type) {
+      case "image": {
+        const imageEl = articleChildrenMap[node_id] as ImageElement;
+        const id = imageEl?.attribute?.instanceof_id;
+        const cropParams = imageEl?.field?.viewports_json
+          ? getCropParams(
+              JSON.parse(imageEl?.field?.viewports_json)?.desktop?.fields
+            )
+          : "";
+
+        const baseUrl = "https://image.seiska.fi";
+        const baseImage = `${baseUrl}/${id}.jpg?width=710&${cropParams}`;
+        const imageElement = getImageElement(
+          baseImage,
+          imageEl?.field?.imageCaption
+        );
+
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, imageElement);
+        return;
+      }
+
+      case "markup": {
+        const markUpEl = articleChildrenMap[node_id] as MarkUp;
+        const markupContent = markUpEl?.field?.markup;
+
+        if (!markupContent || typeof markupContent !== "string") return;
+
+        const content = markupContent
+          .replace(/\n/g, "")
+          .replace(
+            'src="//www.instagram.com/embed.js"',
+            'src="https://www.instagram.com/embed.js"'
+          ); // added protocol to instagram embed
+
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, content);
+        return;
+      }
+      
+      case "jwplayer": {
+        const jwplayerObj = articleChildrenMap[node_id] as Jwplayer;
+
+        if (!jwplayerObj?.field?.vid) return;
+
+        const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
+
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, jwplayerElement);
+        return;
+      }
+
+      case "quotebox": {
+        const quoteboxObj = articleChildrenMap[node_id] as QuoteBox;
+        if (!quoteboxObj || typeof quoteboxObj?.field?.quote !== "string")
+          return;
+
+        const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
+
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, quoteboxElement);
+        return;
+      }
+
+      case "factbox": {
+        const factboxObj = articleChildrenMap[node_id] as FactBox;
+        const { title, bodytext } = factboxObj?.field ?? {};
+
+        if (!factboxObj || !title || !bodytext) return;
+
+        const factboxElement = getFactboxElement(title, bodytext);
+
+        const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
+        htmlMap.splice(correctIndex, 0, factboxElement);
+        return;
+      }
+
+      default:
+        return;
+    }
   });
 
-  // insert markups into the bodytext
-  markups?.forEach((markup) => {
-    const index = markup?.metadata?.bodyTextIndex?.desktop;
-    if (typeof index !== "number") return;
-    const markupObj = article?.children?.markup;
-    const markUpEl = Array.isArray(markupObj)
-      ? markupObj.find(({ attribute }) => +attribute?.id === markup?.node_id)
-      : markupObj;
-    if (!markUpEl?.field?.markup || typeof markUpEl?.field?.markup !== "string")
-      return;
-    const content = markUpEl?.field?.markup
-      .replace(/\n/g, "")
-      .replace(
-        'src="//www.instagram.com/embed.js"',
-        'src="https://www.instagram.com/embed.js"'
-      ); // added protocol to instagram embed
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-    htmlMap.splice(correctIndex, 0, content);
-  });
-
-  if (jwplayer) {
-    const index = jwplayer?.metadata?.bodyTextIndex?.desktop;
-    const jwplayerObj = article?.children?.jwplayer;
-    if (!jwplayerObj?.field?.vid || typeof index !== "number") return;
-    const jwplayerElement = getJwplayerElement(jwplayerObj?.field?.vid);
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-    htmlMap.splice(correctIndex, 0, jwplayerElement);
-  }
-
-  if (quotebox) {
-    const index = quotebox?.metadata?.bodyTextIndex?.desktop;
-    const quoteboxObj = article?.children?.quotebox;
-    if (
-      !quoteboxObj ||
-      typeof quoteboxObj?.field?.quote !== "string" ||
-      typeof index !== "number"
-    )
-      return;
-    const quoteboxElement = getQuoteBoxElement(quoteboxObj?.field?.quote);
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-    htmlMap.splice(correctIndex, 0, quoteboxElement);
-  }
-
-  if (factbox) {
-    const index = factbox?.metadata?.bodyTextIndex?.desktop;
-    const factboxObj = article?.children?.factbox;
-    if (
-      !factboxObj ||
-      typeof index !== "number" ||
-      !factboxObj?.field?.title ||
-      !factboxObj?.field?.bodytext
-    )
-      return;
-    const factboxElement = getFactboxElement(
-      factboxObj?.field?.title,
-      factboxObj?.field?.bodytext
-    );
-    const correctIndex = getCorrectIndex(index, htmlMap, htmlMapCopy);
-    htmlMap.splice(correctIndex, 0, factboxElement);
-  }
   return htmlMap.join("");
 };

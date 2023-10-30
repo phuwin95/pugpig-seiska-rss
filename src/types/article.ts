@@ -45,6 +45,20 @@ export interface ArticleChildren {
   factbox?:       FactBox;
 }
 
+
+export interface ArticleChildrenMap {
+  [K: string]:
+    | AttributeAttributes
+    | ArticleHeader
+    | ArticleList
+    | ImageElement
+    | Jwplayer
+    | BylineClass
+    | MarkUp
+    | QuoteBox
+    | FactBox;
+}
+
 export interface FactBox {
   field: {
     bodytext?: string;
