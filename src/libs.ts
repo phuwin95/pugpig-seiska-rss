@@ -274,7 +274,7 @@ export const getContent = (article: Article) => {
     (item) =>
       item
         .toString()
-        .replace(/\n/g, "") // remove \
+        .replace(/\n/g, " ") // replace \n with a space
         .replace(
           'href="https://labrador.seiska.fi/',
           'href="https://www.seiska.fi/'
