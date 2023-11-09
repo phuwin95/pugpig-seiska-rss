@@ -59,7 +59,12 @@ export default class AppStack extends Stack {
 
 
 
-    api.root.addResource("all").addMethod("GET", getAllIntegration); // GET /all
+    api.root.addResource("all").addMethod("GET", getAllIntegration, {
+      requestParameters: {
+        'method.request.querystring.page': false,
+        'method.request.querystring.itemPerPage': false,
+      }
+    }); // GET /all
     api.root.addResource("frontpage").addMethod("GET", getFrontpageIntegration); // GET /frontpage
     api.root.addResource("popular").addMethod("GET", getPopularIntegration); // GET /popular
 
